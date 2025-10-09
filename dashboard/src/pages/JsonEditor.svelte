@@ -37,11 +37,17 @@
       rewards: Joi.array()
         .items(
           Joi.object({
-            rank: Joi.number().integer().min(1).required().messages({
-              'number.base': 'Rank must be a number',
-              'number.min': 'Rank must be at least 1',
-              'number.integer': 'Rank must be an integer',
-              'any.required': 'Rank is required',
+            from: Joi.number().integer().min(1).required().messages({
+              'number.base': 'From rank must be a number',
+              'number.min': 'From rank must be at least 1',
+              'number.integer': 'From rank must be an integer',
+              'any.required': 'From rank is required',
+            }),
+            to: Joi.number().integer().min(Joi.ref('from')).required().messages({
+              'number.base': 'To rank must be a number',
+              'number.min': 'To rank must be greater than or equal to from rank',
+              'number.integer': 'To rank must be an integer',
+              'any.required': 'To rank is required',
             }),
             reward: Joi.number().min(0).required().messages({
               'number.base': 'Reward must be a number',
@@ -51,11 +57,41 @@
           }).strict(),
         )
         .min(1)
-        .unique('rank') // prevent duplicate ranks
+        .custom((rewards, helpers) => {
+          // Validate that rank ranges don't overlap and are continuous
+          const sortedRewards = [...rewards].sort((a, b) => a.from - b.from)
+          
+          for (let i = 0; i < sortedRewards.length; i++) {
+            const current = sortedRewards[i]
+            
+            // Check for overlapping ranges
+            for (let j = i + 1; j < sortedRewards.length; j++) {
+              const other = sortedRewards[j]
+              if (current.to >= other.from) {
+                return helpers.error('array.overlap', {
+                  message: `Rank ranges overlap: ${current.from}-${current.to} and ${other.from}-${other.to}`
+                })
+              }
+            }
+            
+            // Check if ranges are continuous (except for the last one)
+            if (i < sortedRewards.length - 1) {
+              const next = sortedRewards[i + 1]
+              if (current.to + 1 !== next.from) {
+                return helpers.error('array.gap', {
+                  message: `Gap in rank ranges: ${current.to + 1} to ${next.from - 1} is missing`
+                })
+              }
+            }
+          }
+          
+          return rewards
+        }, 'Rank range validation')
         .messages({
           'array.base': 'Rewards must be an array',
           'array.min': 'At least one reward entry is required',
-          'array.unique': 'Ranks must be unique',
+          'array.overlap': 'Rank ranges cannot overlap',
+          'array.gap': 'Rank ranges must be continuous without gaps',
         }),
     })
       .strict()
@@ -106,24 +142,8 @@
       .messages({
         'object.unknown': 'Invalid field: {#label}',
         'object.base': 'Must be an object with currencies and referrerDailyRewardLimit',
-      }),
-
-    // referral: Joi.object().pattern(
-    //   Joi.string().valid('virtual1', 'virtual2') // Only allow these keys
-    //     .messages({'any.only': 'Only virtual1 and virtual2 currencies allowed'}),
-    //   Joi.object({
-    //     referreeReward: Joi.number().min(0).required()
-    //       .messages({'number.base': 'Referree reward must be a number'}),
-    //     referrerReward: Joi.number().min(0).required()
-    //       .messages({'number.base': 'Referrer reward must be a number'})
-    //   }).strict().messages({
-    //     'object.unknown': 'Invalid field in referral: {#label}',
-    //     'object.base': 'Each currency must have referreeReward and referrerReward'
-    //   })
-    // ).messages({
-    //   'object.base': 'Must be an object with currency keys'
-    // })
-  }
+      }) 
+ }
 
   const validate = () => {
   try {

@@ -97,17 +97,18 @@ export async function insertDefaults() {
       key: "weeklyPrizePool",
       data1: {
         rewards: [
-          { rank: 1, reward: 10 },
-          { rank: 2, reward: 9 },
-          { rank: 3, reward: 8 },
-          { rank: 4, reward: 7 },
-          { rank: 5, reward: 6 },
-          { rank: 6, reward: 5 },
-          { rank: 7, reward: 4 },
-          { rank: 8, reward: 3 },
-          { rank: 9, reward: 2 },
-          { rank: 10, reward: 1 },
-        ],
+          { "from": 1, "to": 1, "reward": 10 },
+          { "from": 2, "to": 2, "reward": 9 },
+          { "from": 3, "to": 3, "reward": 8 },
+          { "from": 4, "to": 6, "reward": 7 },
+          { "from": 7, "to": 10, "reward": 6 },
+          { "from": 11, "to": 13, "reward": 5 },
+          { "from": 14, "to": 20, "reward": 4 },
+          { "from": 21, "to": 30, "reward": 3 },
+          { "from": 31, "to": 40, "reward": 2 },
+          { "from": 41, "to": 50, "reward": 1.5 },
+          { "from": 51, "to": 60, "reward": 1 }
+        ]
       }
     },
   ];

@@ -159,19 +159,25 @@ export async function distributeWeeklyRewards() {
   console.log("🏆 Leaderboard Results:", allUserRewards);
 
   // Assign prizes to top N users
-  for (let i = 0; i < weeklyPrizePool.length; i++) {
-    const prize = weeklyPrizePool[i];
-    const winner = allUserRewards[i];
+for (let i = 0; i < allUserRewards.length; i++) {
+  const winner = allUserRewards[i];
+  const userId = winner.userId;
+  const rank = i + 1; // leaderboard rank
 
-    if (!winner) break;
+  // Find reward for this rank
+  const prizeRange = weeklyPrizePool.find(
+    (p) => rank >= p.from && rank <= p.to
+  );
 
-    const userId = winner.userId;
-    const amount = prize.reward;
+  if (!prizeRange) continue; // no reward for this rank
 
-    console.log(`➡️ Rank #${prize.rank}: User ${userId} → ${amount} PZP`);
+  const amount = prizeRange.reward;
 
-    await processWeeklyPrize(userId, amount, weekStart, weekEnd, prize.rank);
-  }
+  console.log(`➡️ Rank #${rank}: User ${userId} → ${amount} PZP`);
+
+  await processWeeklyPrize(userId, amount, weekStart, weekEnd, rank);
+}
+
 
   console.log("✅ Weekly rewards distribution completed.");
 }
