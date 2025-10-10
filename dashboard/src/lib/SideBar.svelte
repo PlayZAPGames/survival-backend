@@ -67,7 +67,7 @@ function toggleDropdown(name) {
       <div class="sidebar-brand-icon rotate-n-15">
         <i class="fas fa-laugh-wink"></i>
       </div>
-      <div class="sidebar-brand-text mx-3"><sup>BATTLE OF WARMS ADMIN </sup></div>
+      <div class="sidebar-brand-text mx-3"><sup>SURVIVAL ADMIN </sup></div>
     </a>
   
     <!-- Divider -->
