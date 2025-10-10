@@ -1,2 +1,0 @@
-<h1>🚫 Unauthorized</h1>
-<p>You are not allowed to access this page.</p>
