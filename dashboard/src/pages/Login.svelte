@@ -59,7 +59,7 @@
 
 <div class="container">
   <div class="justify-content-center">
-        <h3 class="name" style='color:black'>Battle of warms admin portal </h3>
+        <h3 class="name" style='color:black'>Survival admin portal </h3>
   </div>
   <div class="login-container">
     <div class="login-card">

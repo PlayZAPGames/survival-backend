@@ -267,156 +267,91 @@ export async function insertDefaults() {
   ];
 
 
-  // ✅ Insert Airdrop Season Defaults
-  // const airdropSeasonDefaults = [
-  //   {
-  //     name: "Season 1",
-  //     total_supply: 50000000,
-  //     claimed: 0,
-  //     start_time: "2025-09-01T00:00:00.000Z",
-  //     end_time: "2025-09-30T00:00:00.000Z",
-  //     status: 1
-  //   },
-  //   {
-  //     name: "Season 2",
-  //     total_supply: 100000000,
-  //     claimed: 0,
-  //     start_time: "2025-10-01T00:00:00.000Z",
-  //     end_time: "2025-10-31T00:00:00.000Z",
-  //     status: 1
-  //   },
-  //   {
-  //     name: "Season 3",
-  //     total_supply: 150000000,
-  //     claimed: 0,
-  //     start_time: "2025-11-01T00:00:00.000Z",
-  //     end_time: "2025-11-30T00:00:00.000Z",
-  //     status: 1
-  //   },
-  //   {
-  //     name: "Season 4",
-  //     total_supply: 200000000,
-  //     claimed: 0,
-  //     start_time: "2025-12-01T00:00:00.000Z",
-  //     end_time: "2025-12-31T00:00:00.000Z",
-  //     status: 1
-  //   }
-  // ];
+  const storeDefaults = [
+    // ⚔️ Weapons
+    {
+      name: "Iron Sword",
+      description: "A basic sword forged from iron. Reliable and sturdy.",
+      type: "WEAPON",
+      currencyType: "virtual1",
+      baseLevel: 1,
+      maxLevel: 3,
+      levels: [
+        { level: 1, upgradeCost: 100, stats: { attack: 10, speed: 1.0 } },
+        { level: 2, upgradeCost: 200, stats: { attack: 15, speed: 1.1 } },
+        { level: 3, upgradeCost: 400, stats: { attack: 20, speed: 1.2 } },
+      ],
+    },
+    {
+      name: "Long Bow",
+      description: "Lightweight bow designed for quick ranged attacks.",
+      type: "WEAPON",
+      currencyType: "virtual1",
+      baseLevel: 1,
+      maxLevel: 3,
+      levels: [
+        { level: 1, upgradeCost: 120, stats: { attack: 8, range: 15 } },
+        { level: 2, upgradeCost: 240, stats: { attack: 12, range: 18 } },
+        { level: 3, upgradeCost: 480, stats: { attack: 16, range: 20 } },
+      ],
+    },
+    {
+      name: "Plasma Blaster",
+      description: "A futuristic weapon firing concentrated plasma bolts.",
+      type: "WEAPON",
+      currencyType: "virtual1",
+      baseLevel: 1,
+      maxLevel: 3,
+      levels: [
+        { level: 1, upgradeCost: 300, stats: { attack: 25, fireRate: 1.5 } },
+        { level: 2, upgradeCost: 600, stats: { attack: 35, fireRate: 1.8 } },
+        { level: 3, upgradeCost: 1000, stats: { attack: 50, fireRate: 2.0 } },
+      ],
+    },
 
-  // Store default data(Weapons,armour)
-const storeDefaults = [
-  // ⚔️ Weapons
-  {
-    name: "Iron Sword",
-    description: "A basic sword forged from iron. Reliable and sturdy.",
-    type: "WEAPON",
-    currencyType: "virtual1",
-    baseLevel: 1,
-    maxLevel: 3,
-    levels: [
-      { level: 1, upgradeCost: 100, stats: { attack: 10, speed: 1.0 } },
-      { level: 2, upgradeCost: 200, stats: { attack: 15, speed: 1.1 } },
-      { level: 3, upgradeCost: 400, stats: { attack: 20, speed: 1.2 } },
-    ],
-  },
-  {
-    name: "Long Bow",
-    description: "Lightweight bow designed for quick ranged attacks.",
-    type: "WEAPON",
-    currencyType: "virtual1",
-    baseLevel: 1,
-    maxLevel: 3,
-    levels: [
-      { level: 1, upgradeCost: 120, stats: { attack: 8, range: 15 } },
-      { level: 2, upgradeCost: 240, stats: { attack: 12, range: 18 } },
-      { level: 3, upgradeCost: 480, stats: { attack: 16, range: 20 } },
-    ],
-  },
-  {
-    name: "Plasma Blaster",
-    description: "A futuristic weapon firing concentrated plasma bolts.",
-    type: "WEAPON",
-    currencyType: "virtual1",
-    baseLevel: 1,
-    maxLevel: 3,
-    levels: [
-      { level: 1, upgradeCost: 300, stats: { attack: 25, fireRate: 1.5 } },
-      { level: 2, upgradeCost: 600, stats: { attack: 35, fireRate: 1.8 } },
-      { level: 3, upgradeCost: 1000, stats: { attack: 50, fireRate: 2.0 } },
-    ],
-  },
-
-  // 🛡️ Armors
-  {
-    name: "Leather Armor",
-    description: "Basic armor offering minimal protection.",
-    type: "ARMOR",
-    currencyType: "virtual1",
-    baseLevel: 1,
-    maxLevel: 3,
-    levels: [
-      { level: 1, upgradeCost: 80, stats: { defense: 5, weight: 2 } },
-      { level: 2, upgradeCost: 160, stats: { defense: 8, weight: 2.2 } },
-      { level: 3, upgradeCost: 300, stats: { defense: 12, weight: 2.5 } },
-    ],
-  },
-  {
-    name: "Steel Armor",
-    description: "Heavy armor that provides excellent protection.",
-    type: "ARMOR",
-    currencyType: "virtual1",
-    baseLevel: 1,
-    maxLevel: 3,
-    levels: [
-      { level: 1, upgradeCost: 150, stats: { defense: 10, weight: 4 } },
-      { level: 2, upgradeCost: 300, stats: { defense: 15, weight: 4.5 } },
-      { level: 3, upgradeCost: 500, stats: { defense: 20, weight: 5 } },
-    ],
-  },
-  {
-    name: "Energy Shield",
-    description: "A high-tech shield that absorbs energy attacks.",
-    type: "ARMOR",
-    currencyType: "virtual1",
-    baseLevel: 1,
-    maxLevel: 3,
-    levels: [
-      { level: 1, upgradeCost: 200, stats: { defense: 12, energyResist: 5 } },
-      { level: 2, upgradeCost: 400, stats: { defense: 18, energyResist: 10 } },
-      { level: 3, upgradeCost: 700, stats: { defense: 25, energyResist: 15 } },
-    ],
-  },
-];
+    // 🛡️ Armors
+    {
+      name: "Leather Armor",
+      description: "Basic armor offering minimal protection.",
+      type: "ARMOR",
+      currencyType: "virtual1",
+      baseLevel: 1,
+      maxLevel: 3,
+      levels: [
+        { level: 1, upgradeCost: 80, stats: { defense: 5, weight: 2 } },
+        { level: 2, upgradeCost: 160, stats: { defense: 8, weight: 2.2 } },
+        { level: 3, upgradeCost: 300, stats: { defense: 12, weight: 2.5 } },
+      ],
+    },
+    {
+      name: "Steel Armor",
+      description: "Heavy armor that provides excellent protection.",
+      type: "ARMOR",
+      currencyType: "virtual1",
+      baseLevel: 1,
+      maxLevel: 3,
+      levels: [
+        { level: 1, upgradeCost: 150, stats: { defense: 10, weight: 4 } },
+        { level: 2, upgradeCost: 300, stats: { defense: 15, weight: 4.5 } },
+        { level: 3, upgradeCost: 500, stats: { defense: 20, weight: 5 } },
+      ],
+    },
+    {
+      name: "Energy Shield",
+      description: "A high-tech shield that absorbs energy attacks.",
+      type: "ARMOR",
+      currencyType: "virtual1",
+      baseLevel: 1,
+      maxLevel: 3,
+      levels: [
+        { level: 1, upgradeCost: 200, stats: { defense: 12, energyResist: 5 } },
+        { level: 2, upgradeCost: 400, stats: { defense: 18, energyResist: 10 } },
+        { level: 3, upgradeCost: 700, stats: { defense: 25, energyResist: 15 } },
+      ],
+    },
+  ];
 
 
-
-  // const superPowersDefaults = [
-  //   // superpowers
-  //   {
-  //     name: "ZOOM OUT",
-  //     description: "",
-  //     price: 500,
-  //     isActive: true,
-  //   },
-  //   {
-  //     name: "MAGNET",
-  //     description: "",
-  //     price: 750,
-  //     isActive: true,
-  //   },
-  //   {
-  //     name: "SCORE MLTP",
-  //     description: "",
-  //     price: 1000,
-  //     isActive: true,
-  //   },
-  //   {
-  //     name: "EXTRA SPEED",
-  //     description: "",
-  //     price: 250,
-  //     isActive: true,
-  //   }
-  // ];
 
   for (const item of masterDefaults) {
     const existing = await prisma.master.findUnique({
@@ -474,20 +409,6 @@ const storeDefaults = [
     }
   }
 
-  // for (const season of airdropSeasonDefaults) {
-  //   const exists = await prisma.airdropSeason.findFirst({
-  //     where: {
-  //       name: season.name
-  //     }
-  //   });
-
-  //   if (!exists) {
-  //     await prisma.airdropSeason.create({
-  //       data: season
-  //     });
-  //   }
-  // }
-
    for (const item of storeDefaults) {
     const exists = await prisma.storeItem.findFirst({
       where: { name: item.name, type: item.type },
@@ -506,20 +427,5 @@ const storeDefaults = [
       console.log(`⚠️ Already exists: ${item.name}`);
     }
   }
-
-
-  // for (const item of superPowersDefaults) {
-  //   const exists = await prisma.superPower.findFirst({
-  //     where: {
-  //       name: item.name,
-  //     },
-  //   });
-
-  //   if (!exists) {
-  //     await prisma.superPower.create({ data: item });
-  //     console.log(`✅ Inserted default SuperPower: ${item.name}`);
-  //   }
-  // }
-
   console.log("✅ Default master records ensured.");
 }
