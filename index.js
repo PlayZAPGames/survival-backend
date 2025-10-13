@@ -76,12 +76,6 @@ app.get("/asign-weekly-reward", (req, res) => {
   res.send("Weekly reward distribution started. Check logs for details.");
 });
 
-app.get("/profile_images", (req, res) => {
-  res.sendFile(path.join(__dirname, "profile_images"));
-});
-
-// Serve static files from the "public" directory
-app.use(express.static(path.join(__dirname, "public")));
 
 // Start server and set up webhook
 app.listen(PORT, async () => {
