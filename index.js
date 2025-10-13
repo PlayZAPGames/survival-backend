@@ -71,10 +71,6 @@ app.use("/static", express.static("./static/"));
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
 
-// Serve static files from the dist folder (compiled Svelte app)
-app.use(express.static(path.join(__dirname, "dashboard/dist")));
-
-
 app.get("/asign-weekly-reward", (req, res) => {
   distributeWeeklyRewards();
   res.send("Weekly reward distribution started. Check logs for details.");
