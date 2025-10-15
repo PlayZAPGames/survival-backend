@@ -333,7 +333,7 @@ const status_options = Object.entries(status).map(([key, value]) => ({
               </select>
             </div>
             <div class="col-2 small mr-12">
-              Transaction id
+              Slug/Transaction id
               <br />
               <input
                 type="text"
@@ -357,7 +357,7 @@ const status_options = Object.entries(status).map(([key, value]) => ({
         <div class=" card-body table-wrapper">
           <table>
       <tr>
-        <th>#</th>
+        <th>id</th>
         <th>Username</th>
         <th>Amount </th>
         <th>Reciever Address / Response</th>

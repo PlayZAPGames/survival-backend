@@ -2,10 +2,7 @@
 CREATE TYPE "LoginType" AS ENUM ('guest', 'google', 'apple', 'telegram');
 
 -- CreateEnum
-CREATE TYPE "StoreItemType" AS ENUM ('food', 'pits', 'skin');
-
--- CreateEnum
-CREATE TYPE "ItemType" AS ENUM ('WEAPON', 'ARMOR', 'SHIELD', 'HAT', 'OTHER');
+CREATE TYPE "ItemType" AS ENUM ('weapon', 'armour');
 
 -- CreateTable
 CREATE TABLE "Users" (

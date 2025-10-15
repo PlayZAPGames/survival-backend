@@ -2,7 +2,7 @@ import prisma from "../prisma/db.js";
 import *  as dbQuery from "../database/dbQuery.js";
 import { AdminMiddleware } from "../utility/tokenAuthService.js";
 import *  as bank from "../utility/walletService.js";
-import { numberToSlug, slugType } from "../utility/cypher.js";
+import { numberToSlug, slugToNumber, slugType } from "../utility/cypher.js";
 import express from "express";
 const router = express.Router();
 import { deductEvmBalance, transferPzpReward, transferEvmNativeBalance } from "../controllers/shop.js";
@@ -46,10 +46,17 @@ router.get("/admin/requests/withdraw", AdminMiddleware, async function (req, res
     filters.status = String(status);
   }
 
-  if (id) {
-    filters.id = Number(id);
+   if (id) {
+    let numericId = Number(id);
+    if (isNaN(numericId)) {
+      // Try decoding as slug
+      const decodedId = slugToNumber(id, slugType.withdraw);
+      if (decodedId) numericId = decodedId;
+    }
+    if (!isNaN(numericId)) {
+      filters.id = numericId;
+    }
   }
-
   if (userId) {
     filters.user_id = Number(userId);
   }

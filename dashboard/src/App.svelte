@@ -54,7 +54,7 @@
     },
 
     {
-      name: "Earn Ludy", iconClass: "fa-duotone fa-solid fa-coins",
+      name: "Earn Token", iconClass: "fa-duotone fa-solid fa-coins",
       children: [
         { name: "Daily Rewards", iconClass: "fas fa-gamepad", href: "/#/earn-ludy" },
         { name: "Spin Wheel", iconClass: "fa-solid fa-spinner", href: "/#/spin-wheels" },

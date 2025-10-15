@@ -17,12 +17,7 @@ router.get("/store/items", UserMiddleware, handleRequest(async function (req, re
 }));
 
 
-// router.post("/purchase", UserMiddleware, handleRequest(async (req, res) => {
-//   const user = req.user
-//   const { storeItemId } = req.body;
-//   const purchase = await purchaseItem(user, storeItemId);
-//   return makeResponse(res, SUCCESS, true, responseMessages.RECORD_FOUND, purchase);
-// }));
+
 
 router.post("/store/upgrade/:itemId", UserMiddleware, handleRequest(async (req, res) => {
   // const user = req.user

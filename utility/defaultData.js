@@ -59,12 +59,12 @@ export async function insertDefaults() {
     {
       key: "swap",
       data1: {
-          core_to_bsc_day_limit: 300,
-          bsc_to_core_day_limit: 1000,
-          min_swap: 1,
-          core_to_bsc_processing_fee: 2,
-          bsc_to_core_processing_fee: 0,
-          swap_maintenance: false
+        core_to_bsc_day_limit: 300,
+        bsc_to_core_day_limit: 1000,
+        min_swap: 1,
+        core_to_bsc_processing_fee: 2,
+        bsc_to_core_processing_fee: 0,
+        swap_maintenance: false
       }
     },
     {
@@ -117,9 +117,9 @@ export async function insertDefaults() {
   const dailyTasks = [
     {
       task_name: "Play & Win",
-      task_desc: "Play games and earn $LUDY for each win. Higher stakes games offer bigger rewards!",
+      task_desc: "Play games and earn $COIN for each win. Higher stakes games offer bigger rewards!",
       reward: 0,
-      reward_range: "10-50 $LUDY",
+      reward_range: "10-50 $COIN",
       currency_type: "virtual1",
       status: "Active",
       task_pfp: "https://cdn-icons-png.flaticon.com/512/919/919278.png", // Replace with actual icon if available
@@ -127,7 +127,7 @@ export async function insertDefaults() {
     },
     {
       task_name: "Invite Friends",
-      task_desc: "Earn $LUDY for each friend who joins using your referral code and plays their first game.",
+      task_desc: "Earn $COIN for each friend who joins using your referral code and plays their first game.",
       reward: 100,
       reward_range: null,
       currency_type: "virtual1",
@@ -137,9 +137,9 @@ export async function insertDefaults() {
     },
     {
       task_name: "Spin the Wheel",
-      task_desc: "Spin the wheel once daily for a chance to win $LUDY tokens and other rewards!",
+      task_desc: "Spin the wheel once daily for a chance to win $COIN tokens and other rewards!",
       reward: 0,
-      reward_range: "5-500 $LUDY",
+      reward_range: "5-500 $COIN",
       currency_type: "virtual1",
       status: "Active",
       task_pfp: "https://cdn-icons-png.flaticon.com/512/1038/1038205.png", // Replace with actual icon
@@ -147,7 +147,7 @@ export async function insertDefaults() {
     },
     {
       task_name: "Login Bonus",
-      task_desc: "Log in daily to earn $LUDY. Consecutive logins increase your rewards!",
+      task_desc: "Log in daily to earn $COIN. Consecutive logins increase your rewards!",
       reward: 0,
       reward_range: "1-7 Days Streak",
       currency_type: "virtual1",
@@ -157,17 +157,17 @@ export async function insertDefaults() {
     },
     {
       task_name: "Follow on X",
-      task_desc: "Follow our official X account to earn a one-time reward of 100 $LUDY tokens.",
+      task_desc: "Follow our official X account to earn a one-time reward of 100 $COIN tokens.",
       reward: 100,
       reward_range: null,
       currency_type: "virtual1",
       status: "Active",
       task_pfp: "https://cdn.discordapp.com/attachments/1259807072975978560/1290548488895205376/twitter-x-icon.png",
-      task_redirect: "https://x.com/LudoRoyale"
+      task_redirect: "https://x.com/PlayZap"
     },
     {
       task_name: "Join Telegram",
-      task_desc: "Join our Telegram community to earn a one-time reward of 100 $LUDY tokens.",
+      task_desc: "Join our Telegram community to earn a one-time reward of 100 $COIN tokens.",
       reward: 100,
       reward_range: null,
       currency_type: "virtual1",
@@ -268,11 +268,11 @@ export async function insertDefaults() {
 
 
   const storeDefaults = [
-    // ⚔️ Weapons
+    // ⚔️ weapons
     {
-      name: "Iron Sword",
-      description: "A basic sword forged from iron. Reliable and sturdy.",
-      type: "WEAPON",
+      name: "Boomerang",
+      description: "A basic Boomerang forged from iron.",
+      type: "weapon",
       currencyType: "virtual1",
       baseLevel: 1,
       maxLevel: 3,
@@ -283,9 +283,35 @@ export async function insertDefaults() {
       ],
     },
     {
-      name: "Long Bow",
-      description: "Lightweight bow designed for quick ranged attacks.",
-      type: "WEAPON",
+      name: "Kunai",
+      description: "A basic Kunai forged from iron.",
+      type: "weapon",
+      currencyType: "virtual1",
+      baseLevel: 1,
+      maxLevel: 3,
+      levels: [
+        { level: 1, upgradeCost: 100, stats: { attack: 10, speed: 1.0 } },
+        { level: 2, upgradeCost: 200, stats: { attack: 15, speed: 1.1 } },
+        { level: 3, upgradeCost: 400, stats: { attack: 20, speed: 1.2 } },
+      ],
+    },
+    {
+      name: "Shuriken 1",
+      description: "A basic Shuriken forged from iron. Reliable and sturdy.",
+      type: "weapon",
+      currencyType: "virtual1",
+      baseLevel: 1,
+      maxLevel: 3,
+      levels: [
+        { level: 1, upgradeCost: 100, stats: { attack: 10, speed: 1.0 } },
+        { level: 2, upgradeCost: 200, stats: { attack: 15, speed: 1.1 } },
+        { level: 3, upgradeCost: 400, stats: { attack: 20, speed: 1.2 } },
+      ],
+    },
+    {
+      name: "Shuriken 2",
+      description: "Lightweight Shuriken designed for quick ranged attacks.",
+      type: "weapon",
       currencyType: "virtual1",
       baseLevel: 1,
       maxLevel: 3,
@@ -295,25 +321,13 @@ export async function insertDefaults() {
         { level: 3, upgradeCost: 480, stats: { attack: 16, range: 20 } },
       ],
     },
-    {
-      name: "Plasma Blaster",
-      description: "A futuristic weapon firing concentrated plasma bolts.",
-      type: "WEAPON",
-      currencyType: "virtual1",
-      baseLevel: 1,
-      maxLevel: 3,
-      levels: [
-        { level: 1, upgradeCost: 300, stats: { attack: 25, fireRate: 1.5 } },
-        { level: 2, upgradeCost: 600, stats: { attack: 35, fireRate: 1.8 } },
-        { level: 3, upgradeCost: 1000, stats: { attack: 50, fireRate: 2.0 } },
-      ],
-    },
 
-    // 🛡️ Armors
+
+    // 🛡️armor/Inventory
     {
-      name: "Leather Armor",
+      name: "Gloves 1",
       description: "Basic armor offering minimal protection.",
-      type: "ARMOR",
+      type: "inventory",
       currencyType: "virtual1",
       baseLevel: 1,
       maxLevel: 3,
@@ -324,9 +338,35 @@ export async function insertDefaults() {
       ],
     },
     {
-      name: "Steel Armor",
-      description: "Heavy armor that provides excellent protection.",
-      type: "ARMOR",
+      name: "Gloves 2",
+      description: "Basic armor offering minimal protection.",
+      type: "inventory",
+      currencyType: "virtual1",
+      baseLevel: 1,
+      maxLevel: 3,
+      levels: [
+        { level: 1, upgradeCost: 80, stats: { defense: 5, weight: 2 } },
+        { level: 2, upgradeCost: 160, stats: { defense: 8, weight: 2.2 } },
+        { level: 3, upgradeCost: 300, stats: { defense: 12, weight: 2.5 } },
+      ],
+    },
+    {
+      name: "Gloves 3",
+      description: "Basic armor offering minimal protection.",
+      type: "inventory",
+      currencyType: "virtual1",
+      baseLevel: 1,
+      maxLevel: 3,
+      levels: [
+        { level: 1, upgradeCost: 80, stats: { defense: 5, weight: 2 } },
+        { level: 2, upgradeCost: 160, stats: { defense: 8, weight: 2.2 } },
+        { level: 3, upgradeCost: 300, stats: { defense: 12, weight: 2.5 } },
+      ],
+    },
+    {
+      name: "Hat 1",
+      description: "Hat that provides excellent protection.",
+      type: "inventory",
       currencyType: "virtual1",
       baseLevel: 1,
       maxLevel: 3,
@@ -337,9 +377,139 @@ export async function insertDefaults() {
       ],
     },
     {
-      name: "Energy Shield",
-      description: "A high-tech shield that absorbs energy attacks.",
-      type: "ARMOR",
+      name: "Hat 2",
+      description: "Hat that provides excellent protection.",
+      type: "inventory",
+      currencyType: "virtual1",
+      baseLevel: 1,
+      maxLevel: 3,
+      levels: [
+        { level: 1, upgradeCost: 150, stats: { defense: 10, weight: 4 } },
+        { level: 2, upgradeCost: 300, stats: { defense: 15, weight: 4.5 } },
+        { level: 3, upgradeCost: 500, stats: { defense: 20, weight: 5 } },
+      ],
+    },
+    {
+      name: "Hat 3",
+      description: "Hat that provides excellent protection.",
+      type: "inventory",
+      currencyType: "virtual1",
+      baseLevel: 1,
+      maxLevel: 3,
+      levels: [
+        { level: 1, upgradeCost: 150, stats: { defense: 10, weight: 4 } },
+        { level: 2, upgradeCost: 300, stats: { defense: 15, weight: 4.5 } },
+        { level: 3, upgradeCost: 500, stats: { defense: 20, weight: 5 } },
+      ],
+    },
+    {
+      name: "Shoes 1",
+      description: "A high-tech Shoes that absorbs energy attacks.",
+      type: "inventory",
+      currencyType: "virtual1",
+      baseLevel: 1,
+      maxLevel: 3,
+      levels: [
+        { level: 1, upgradeCost: 200, stats: { defense: 12, energyResist: 5 } },
+        { level: 2, upgradeCost: 400, stats: { defense: 18, energyResist: 10 } },
+        { level: 3, upgradeCost: 700, stats: { defense: 25, energyResist: 15 } },
+      ],
+    },
+    {
+      name: "Shoes 2",
+      description: "A high-tech Shoes that absorbs energy attacks.",
+      type: "inventory",
+      currencyType: "virtual1",
+      baseLevel: 1,
+      maxLevel: 3,
+      levels: [
+        { level: 1, upgradeCost: 200, stats: { defense: 12, energyResist: 5 } },
+        { level: 2, upgradeCost: 400, stats: { defense: 18, energyResist: 10 } },
+        { level: 3, upgradeCost: 700, stats: { defense: 25, energyResist: 15 } },
+      ],
+    },
+    {
+      name: "Shoes 3",
+      description: "A high-tech Shoes that absorbs energy attacks.",
+      type: "inventory",
+      currencyType: "virtual1",
+      baseLevel: 1,
+      maxLevel: 3,
+      levels: [
+        { level: 1, upgradeCost: 200, stats: { defense: 12, energyResist: 5 } },
+        { level: 2, upgradeCost: 400, stats: { defense: 18, energyResist: 10 } },
+        { level: 3, upgradeCost: 700, stats: { defense: 25, energyResist: 15 } },
+      ],
+    },
+    {
+      name: "Pant 1",
+      description: "A high-tech Pant that absorbs energy attacks.",
+      type: "inventory",
+      currencyType: "virtual1",
+      baseLevel: 1,
+      maxLevel: 3,
+      levels: [
+        { level: 1, upgradeCost: 200, stats: { defense: 12, energyResist: 5 } },
+        { level: 2, upgradeCost: 400, stats: { defense: 18, energyResist: 10 } },
+        { level: 3, upgradeCost: 700, stats: { defense: 25, energyResist: 15 } },
+      ],
+    },
+    {
+      name: "Pant 2",
+      description: "A high-tech Pant that absorbs energy attacks.",
+      type: "inventory",
+      currencyType: "virtual1",
+      baseLevel: 1,
+      maxLevel: 3,
+      levels: [
+        { level: 1, upgradeCost: 200, stats: { defense: 12, energyResist: 5 } },
+        { level: 2, upgradeCost: 400, stats: { defense: 18, energyResist: 10 } },
+        { level: 3, upgradeCost: 700, stats: { defense: 25, energyResist: 15 } },
+      ],
+    },
+    {
+      name: "Pant 3",
+      description: "A high-tech Pant that absorbs energy attacks.",
+      type: "inventory",
+      currencyType: "virtual1",
+      baseLevel: 1,
+      maxLevel: 3,
+      levels: [
+        { level: 1, upgradeCost: 200, stats: { defense: 12, energyResist: 5 } },
+        { level: 2, upgradeCost: 400, stats: { defense: 18, energyResist: 10 } },
+        { level: 3, upgradeCost: 700, stats: { defense: 25, energyResist: 15 } },
+      ],
+    },
+    {
+      name: "Vest 1",
+      description: "A high-tech Vest that absorbs energy attacks.",
+      type: "inventory",
+      currencyType: "virtual1",
+      baseLevel: 1,
+      maxLevel: 3,
+      levels: [
+        { level: 1, upgradeCost: 200, stats: { defense: 12, energyResist: 5 } },
+        { level: 2, upgradeCost: 400, stats: { defense: 18, energyResist: 10 } },
+        { level: 3, upgradeCost: 700, stats: { defense: 25, energyResist: 15 } },
+      ],
+    },
+    {
+      name: "Vest 2",
+      description: "A high-tech Vest that absorbs energy attacks.",
+      type: "inventory",
+      currencyType: "virtual1",
+      baseLevel: 1,
+      maxLevel: 3,
+      levels: [
+        { level: 1, upgradeCost: 200, stats: { defense: 12, energyResist: 5 } },
+        { level: 2, upgradeCost: 400, stats: { defense: 18, energyResist: 10 } },
+        { level: 3, upgradeCost: 700, stats: { defense: 25, energyResist: 15 } },
+      ],
+    },
+    {
+      name: "Vest 3",
+      description: "A high-tech Vest that absorbs energy attacks.",
+      type: "inventory",
       currencyType: "virtual1",
       baseLevel: 1,
       maxLevel: 3,
@@ -409,7 +579,7 @@ export async function insertDefaults() {
     }
   }
 
-   for (const item of storeDefaults) {
+  for (const item of storeDefaults) {
     const exists = await prisma.storeItem.findFirst({
       where: { name: item.name, type: item.type },
     });

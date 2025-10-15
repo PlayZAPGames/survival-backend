@@ -1,7 +1,7 @@
 <script>
   import { onMount } from 'svelte'
   import baseUrl from '../config'
-    import toast from 'svelte-french-toast'
+  import toast from 'svelte-french-toast'
   import { sidebarOpen } from '../stores/sidebar'
   import Paginations from '../lib/Paginations.svelte'
 
@@ -12,19 +12,24 @@
   let pagination = { total: 0, page: 1, limit: 10, totalPages: 1 }
 
   let error = null
-
   let loading = true
-  let filterCategory = 'food'
+  let filterCategory = 'weapon'
   let selectedRecord = null
   let showModal = false
 
   let formData = {
     name: '',
     description: '',
-    price: 0,
-    type: 'table',
-    isActive: true,
-    isDefault: false,
+    price: null,
+    currencyType: 'virtual1',
+    type: 'weapon',
+    baseLevel: 1,
+    maxLevel: 3,
+    levels: [
+      { level: 1, upgradeCost: 0, stats: {} },
+      { level: 2, upgradeCost: 0, stats: {} },
+      { level: 3, upgradeCost: 0, stats: {} }
+    ]
   }
 
   const store_options = STORE.map((label) => ({
@@ -32,37 +37,52 @@
     value: label,
   }))
 
-const openAddModal = () => {
-  selectedRecord = null;
-  formData = {
-    name: "",
-    description: "",
-    price: 0,
-    type: "table",
-    isActive: true,
-    isDefault: false,
-  };
-  showModal = true;
-};
+  const currency_options = [
+    { label: 'Virtual 1', value: 'virtual1' },
+    { label: 'Virtual 2', value: 'virtual2' }
+  ]
 
-const openEditModal = (data) => {
-  selectedRecord = data;
-  formData = {
-    name: data.name,
-    description: data.description,
-    price: data.price,
-    type: data.type,
-    imageUrl: data.imageUrl,
-    isActive: data.isActive,
-    isDefault: data.isDefault,
+  const openAddModal = () => {
+    selectedRecord = null;
+    formData = {
+      name: "",
+      description: "",
+      price: null,
+      currencyType: "virtual1",
+      type: "weapon",
+      baseLevel: 1,
+      maxLevel: 3,
+      levels: [
+        { level: 1, upgradeCost: 0, stats: {} },
+        { level: 2, upgradeCost: 0, stats: {} },
+        { level: 3, upgradeCost: 0, stats: {} }
+      ]
+    };
+    showModal = true;
   };
-  showModal = true;
-};
 
+  const openEditModal = (data) => {
+    selectedRecord = data;
+    formData = {
+      name: data.name,
+      description: data.description,
+      price: data.price,
+      currencyType: data.currencyType,
+      type: data.type,
+      baseLevel: data.baseLevel,
+      maxLevel: data.maxLevel,
+      levels: data.levels.map(level => ({
+        level: level.level,
+        upgradeCost: level.upgradeCost,
+        stats: level.stats
+      }))
+    };
+    showModal = true;
+  };
 
   const handleCreate = async () => {
     const token = getToken()
-    const res = await fetch(`${baseUrl}/api/admin/store`, {
+    const res = await fetch(`${baseUrl}/api/admin/store/items`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -84,8 +104,8 @@ const openEditModal = (data) => {
 
   const handleUpdate = async () => {
     const token = getToken()
-    const res = await fetch(`${baseUrl}/api/admin/store/${selectedRecord.id}`, {
-      method: 'PATCH',
+    const res = await fetch(`${baseUrl}/api/admin/store/items/${selectedRecord.id}`, {
+      method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${token}`,
@@ -104,14 +124,38 @@ const openEditModal = (data) => {
     }
   }
 
-  const fetchData = async (page = 1) => {
+  const handleDelete = async (itemId, itemName) => {
+    if (!confirm(`Are you sure you want to delete "${itemName}"?`)) {
+      return
+    }
+
     try {
       const token = getToken()
-      const query = new URLSearchParams({
-        type: filterCategory,
+      const res = await fetch(`${baseUrl}/api/admin/store/items/${itemId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
       })
 
-      const response = await fetch(`${baseUrl}/api/admin/store?${query.toString()}`, {
+      if (res.ok) {
+        const response = await res.json()
+        await fetchData()
+        toast.success(response.message)
+      } else {
+        const error = await res.json()
+        toast.error(error.message)
+      }
+    } catch (err) {
+      toast.error('Failed to delete item')
+    }
+  }
+
+  const fetchData = async (page = 1) => {
+    try {
+      loading = true
+      const token = getToken()
+      const response = await fetch(`${baseUrl}/api/admin/store/items`, {
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
@@ -119,23 +163,32 @@ const openEditModal = (data) => {
       })
       if (!response.ok) throw new Error('Failed to fetch data')
       const result = await response.json()
-      records = result.data.items // ✅ Extract the actual array
+      records = result.data.items
     } catch (err) {
       error = err.message
+      toast.error(err.message)
     } finally {
       loading = false
     }
   }
+
+  const updateLevelCost = (index, value) => {
+    formData.levels[index].upgradeCost = parseInt(value) || 0
+  }
+
+  const updateLevelStat = (levelIndex, statKey, value) => {
+    formData.levels[levelIndex].stats[statKey] = value
+  }
+
 
   onMount(async () => {
     fetchData()
   })
 </script>
 
-<!-- <div class="page-content"> -->
 <div class="page-content" class:sidebar-open={$sidebarOpen} class:sidebar-closed={!$sidebarOpen}>
   {#if loading}
-    <p>Loading store...</p>
+    <p>Loading store items...</p>
   {:else if error}
     <p style="color: red;">{error}</p>
   {:else}
@@ -144,17 +197,17 @@ const openEditModal = (data) => {
         <div class="card-header py-3">
           <div class="row justify-content-between">
             <div class="col-lg-9 pull-right btn text-left">
-              <h5 class="m-0 font-weight-bold text-primary">Store</h5>
+              <h5 class="m-0 font-weight-bold text-primary">Store Items Management</h5>
             </div>
             <div class="">
-              <button class="btn btn-primary m-0" on:click={openAddModal}>Add new item</button>
+              <button class="btn btn-primary m-0" on:click={openAddModal}>Add New Item</button>
             </div>
           </div>
         </div>
         <div class="filters">
           <div class="row m-20 text-left">
             <div class="col-2 small">
-              Select category
+              Filter by Type
               <br />
               <select
                 style="margin-right: 12px; min-width: 110px;"
@@ -168,41 +221,67 @@ const openEditModal = (data) => {
             </div>
           </div>
         </div>
-        <div class=" card-body table-wrapper">
+        <div class="card-body table-wrapper">
           <table>
             <thead>
               <tr>
+                <th>ID</th>
                 <th>Name</th>
-                <th>Category</th>
-                <!-- <th>Desc</th> -->
-                <th>Price</th>
-                <th>Is Active</th>
-                <th>Is default</th>
-                <th>Action</th>
+                <th>Type</th>
+                <!-- <th>Price</th> -->
+                <th>Currency</th>
+                <th>Levels</th>
+                <th>Purchases</th>
+                <th>Actions</th>
               </tr>
             </thead>
             <tbody>
-              {#each records as record}
+              {#each records.filter(record => !filterCategory || record.type === filterCategory) as record}
                 <tr>
-                  <td>{record.name}</td>
-                  <td>{record.type}</td>
-                  <!-- <td>{record.description ?? '-'}</td> -->
-                  <td>{record.price}</td>
-                  <td>{record.isActive}</td>
-                  <td>{record.isDefault}</td>
+                  <td>{record.id}</td>
                   <td>
-                    <div class="action-column">
-                      <button class="action-btn" on:click={() => openEditModal(record)}>
-                        <i class="fas fa-pen"></i>
+                    <strong>{record.name}</strong>
+                    {#if record.description}
+                      <br />
+                      <small style="color: #666;">{record.description}</small>
+                    {/if}
+                  </td>
+                  <td>{record.type}</td>
+                  <!-- <td>{record.price ?? 'N/A'}</td> -->
+                  <td>{record.currencyType}</td>
+                  <td>
+                    {record.baseLevel} → {record.maxLevel}
+                    <br />
+                    <small>{record.levels.length} levels</small>
+                  </td>
+                  <td>{record.totalPurchases}</td>
+                  <td>
+                    <!-- <div class="action-column">
+                      <button class="action-btn" on:click={() => openEditModal(record)} title="Edit">
+                        <i class="fas fa-edit"></i>
                       </button>
+                      <button class="action-btn delete-btn" on:click={() => handleDelete(record.id, record.name)} title="Delete">
+                        <i class="fas fa-trash"></i>
+                      </button>
+                    </div> -->
+
+                      <div class="action-column">
+                      <span class="action-btn" on:click={() => openEditModal(record)}>
+                        <i class="fas fa-pen"></i>
+                      </span>
+                      <span class="action-btn delete-btn" on:click={() => handleDelete(record.id, record.name)}>
+                        <i class="fas fa-trash-alt"></i>
+                      </span>
                     </div>
+
+                    
                   </td>
                 </tr>
               {/each}
             </tbody>
           </table>
           {#if records.length === 0}
-            <p class="no-records">No records found</p>
+            <p class="no-records">No store items found</p>
           {/if}
         </div>
       </div>
@@ -212,48 +291,231 @@ const openEditModal = (data) => {
   {#if showModal}
     <div class="modal-backdrop" on:click={() => (showModal = false)}></div>
 
-    <div class="modal" on:click|stopPropagation>
+    <div class="modal large-modal" on:click|stopPropagation>
       <div class="modal-header">
-        <h3>{selectedRecord ? 'Edit Store Item' : 'New Store Item'}</h3>
+        <h3>{selectedRecord ? 'Edit Store Item' : 'Create New Store Item'}</h3>
+        <button class="close-btn" on:click={() => (showModal = false)}>×</button>
       </div>
       <form
         on:submit|preventDefault={selectedRecord ? handleUpdate : handleCreate}
         class="modal-form"
       >
-      {#if !selectedRecord}
-        <label>Name</label>
-        <input type="text" bind:value={formData.name} />
-      {/if}
-        <!-- <label>Description</label>
-        <input type="text" bind:value={formData.description} /> -->
+        <div class="form-section">
+          <h4>Basic Information</h4>
+          
+          <label>Name *</label>
+          <input type="text" bind:value={formData.name} required />
 
-        <label>Price</label>
-        <input type="number" bind:value={formData.price} />
+          <label>Description</label>
+          <textarea bind:value={formData.description} rows="3"></textarea>
 
-        <label>Category</label>
-
-        
-        <select bind:value={formData.type}>
-             {#each store_options as option}
+          <!-- <label>Type *</label>
+          <select bind:value={formData.type} required>
+            {#each store_options as option}
               <option value={option.value}>{option.label}</option>
             {/each}
-        </select>
+          </select> -->
 
-        <label>Is Active</label>
-        <input type="checkbox" bind:checked={formData.isActive} />
+          <!-- <div class="row">
+            <div class="col-6">
+              <label>Base Level</label>
+              <input type="number" bind:value={formData.baseLevel} min="1" max="10" />
+            </div>
+            <div class="col-6">
+              <label>Max Level</label>
+              <input type="number" bind:value={formData.maxLevel} min="1" max="10" />
+            </div>
+          </div> -->
 
-        <label>Is Default</label>
-        <input type="checkbox" bind:checked={formData.isDefault} />
+          <!-- <div class="row">
+            <div class="col-6">
+              <label>Price</label>
+              <input type="number" bind:value={formData.price} placeholder="Optional" />
+            </div>
+            <div class="col-6">
+              <label>Currency Type</label>
+              <select bind:value={formData.currencyType}>
+                {#each currency_options as option}
+                  <option value={option.value}>{option.label}</option>
+                {/each}
+              </select>
+            </div>
+          </div> -->
+        </div>
 
-        <button class="submit-btn" type="submit">Submit</button>
+        <div class="form-section">
+          <h4>Level Configuration</h4>
+          {#each formData.levels as level, index}
+            <div class="level-section">
+              <h5>Level {level.level}</h5>
+              
+              <label>Upgrade Cost</label>
+              <input 
+                type="number" 
+                bind:value={level.upgradeCost}
+                on:input={(e) => updateLevelCost(index, e.target.value)}
+                min="0" 
+              />
+
+              <label class="text-center">Stats</label>
+              <div class="stats-grid">
+                {#each Object.entries(level.stats) as [key, value]}
+                  <div class="stat-row">
+                    <label class="label">{key}</label>
+                    <input 
+                      type="text" 
+                      value={value} 
+                      placeholder="Value"
+                      on:input={(e) => updateLevelStat(index, key, e.target.value)}
+                    />
+                  </div>
+                {/each}
+              </div>
+            </div>
+          {/each}
+        </div>
+
+
+
+
+        <div class="form-actions">
+          <button type="button" class="cancel-btn" on:click={() => (showModal = false)}>Cancel</button>
+          <button class="submit-btn" type="submit">
+            {selectedRecord ? 'Update Item' : 'Create Item'}
+          </button>
+        </div>
       </form>
     </div>
   {/if}
 </div>
 
 <style>
+  .action-btn.delete {
+    color: #e11d48;
+  }
+  .large-modal {
+    width: 600px;
+    max-width: 95vw;
+  }
 
-    .action-btn{
+  .form-section {
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #eee;
+  }
+
+  .form-section h4 {
+    margin: 0 0 1rem 0;
+    color: #4e73df;
+    font-size: 1.1rem;
+  }
+
+    .action-column {
+    display: flex;
+    justify-content: flex-start; /* align icons to the left */
+    align-items: center;
+    gap: 25px;
+    width: 100%;
+  }
+
+  td:last-child {
+    white-space: nowrap;
+    width: 1%;
+  }
+
+  .level-section {
+    background: #f8f9fa;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    border-radius: 4px;
+    border-left: 4px solid #4e73df;
+  }
+
+  .level-section h5 {
+    margin: 0 0 0.75rem 0;
+    color: #333;
+  }
+
+  .stats-grid {
+    display: grid;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .stat-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr auto;
+    gap: 0.5rem;
+    align-items: center;
+  }
+
+
+
+  .text-center{
+    text-align: center !important;
+  }
+
+  .label{
+    color: #666;
+  }
+  .row {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .col-6 {
+    flex: 1;
+  }
+
+  .form-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1.5rem;
+  }
+
+  .cancel-btn {
+    flex: 1;
+    padding: 0.6rem;
+    background: #6c757d;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+
+  .submit-btn {
+    flex: 2;
+    padding: 0.6rem;
+    background-color: #4e73df;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .close-btn {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: #666;
+  }
+
+  .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+  }
+
+  .delete-btn {
+    color: #dc3545 !important;
+    margin-left: 0.5rem;
+  }
+
+  .action-btn{
     padding: 0 !important;
     background-color: transparent !important;
     border: none;
@@ -262,7 +524,6 @@ const openEditModal = (data) => {
     border: none !important;
   }
 
-  
   .action-btn i {
     margin-right: 6px;
   }
@@ -279,7 +540,7 @@ const openEditModal = (data) => {
     margin-right: 6px;
   }
 
-    .modal {
+  .modal {
     position: fixed;
     top: 50%;
     left: 50%;
@@ -292,10 +553,10 @@ const openEditModal = (data) => {
     max-height: 90vh;
     overflow-y: auto;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    scrollbar-width: none; /* Firefox */
+    scrollbar-width: none;
   }
   .modal::-webkit-scrollbar {
-    display: none; /* Chrome, Safari */
+    display: none;
   }
 
   .modal-backdrop {
@@ -304,17 +565,18 @@ const openEditModal = (data) => {
     background: rgba(0, 0, 0, 0.4);
     z-index: 99;
   }
-  .modal-header {
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 1rem;
+  
+  .modal input, .modal select, .modal textarea {
+    width: 100%;
+    padding: 0.5rem;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    background: #f8f9fc;
+    margin-bottom: 0.75rem;
+    box-sizing: border-box;
+    color: black;
   }
-  .modal-header h3 {
-    margin: 0;
-  }
-  .modal input {
-    height: 20px;
-  }
+
   .modal-form label {
     text-align: left;
     font-weight: bold;
@@ -323,40 +585,20 @@ const openEditModal = (data) => {
     margin-top: 0.75rem;
     margin-bottom: 0.25rem;
   }
-  .modal-form input,
-  .modal-form select {
-    width: 100%;
-    padding: 0.5rem;
-    border-radius: 4px;
-    border: 1px solid #ccc;
-    background: #f8f9fc;
-    margin-bottom: 0.25rem;
-  }
-  .submit-btn {
-    width: 100%;
-    margin-top: 1rem;
-    padding: 0.6rem;
-    background-color: #4e73df;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    font-weight: 600;
-    cursor: pointer;
-  }
 
-    .btn-primary {
+  .btn-primary {
     color: #fff !important;
     background-color: #4e73df !important;
     border-color: #4e73df !important;
   }
 
-
+  /* Rest of your existing styles remain the same */
   :global(.flatpickr-wrapper .flatpickr-input) {
     width: 250px !important;
     box-sizing: border-box;
-    white-space: nowrap; /* don't wrap the range text */
+    white-space: nowrap;
     overflow: hidden;
-    text-overflow: ellipsis; /* show ... if it overflows */
+    text-overflow: ellipsis;
   }
   .text-left {
     text-align: left;
@@ -474,11 +716,7 @@ const openEditModal = (data) => {
     font-size: 1rem;
     line-height: 1.5;
     border-radius: 0.35rem;
-    transition:
-      color 0.15s ease-in-out,
-      background-color 0.15s ease-in-out,
-      border-color 0.15s ease-in-out,
-      box-shadow 0.15s ease-in-out;
+    transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
   }
   table {
     border-radius: 0 !important;

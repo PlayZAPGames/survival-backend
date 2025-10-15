@@ -11,18 +11,9 @@ enum LoginType {
 }
 
 // Store item types
-enum StoreItemType {
-  food
-  pits
-  skin
-}
-
 enum ItemType {
-  WEAPON
-  ARMOR
-  SHIELD
-  HAT
-  OTHER
+  weapon
+  inventory 
 }
 
 generator client {
