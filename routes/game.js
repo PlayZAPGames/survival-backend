@@ -168,16 +168,16 @@ router.post("/game/play", UserMiddleware, validators('GAME_PLAY'), handleRequest
   if (!gameData) {
     return makeResponse(res, BAD_REQUEST, false, `Game not available.`);
   }
-  const reward = 0;
+  // const reward = 0;
 
   // 1. Find active airdrop season
-  const activeSeason = await prisma.airdropSeason.findFirst({
-    where: {
-      status: 0,
-      start_time: { lte: new Date() },
-      end_time: { gte: new Date() }
-    }
-  });
+  // const activeSeason = await prisma.airdropSeason.findFirst({
+  //   where: {
+  //     status: 0,
+  //     start_time: { lte: new Date() },
+  //     end_time: { gte: new Date() }
+  //   }
+  // });
 
   // if (activeSeason) {
 
@@ -293,7 +293,7 @@ router.post("/game/play", UserMiddleware, validators('GAME_PLAY'), handleRequest
 
 
 router.post("/game/finish", UserMiddleware, validators('GAME_FINISH'), handleRequest(async (req, res) => {
-  const { gameId, roomId, tournamentId, points, time } = req.body;
+  const { gameId, roomId, tournamentId, points, time, kills, bossKills } = req.body;
   const userId = req.user.id;
 
   const tournament = await prisma.userTournament.findFirst({
@@ -326,10 +326,13 @@ router.post("/game/finish", UserMiddleware, validators('GAME_FINISH'), handleReq
   
   // ------------------------------
   // 🔹 Calculate final score
-  const scoreFromPoints = (points || 0) * gameData.coins; // 5 coins per point
-  const scoreFromTime = Math.floor((time || 0) / 10) * gameData.timeBonus; // 2 coins per 10 sec
-  const finalScore = scoreFromPoints + scoreFromTime;
+  const scoreFromPoints = (kills || 0) * gameData.kills; // 5 coins per point
+  const scoreFromBossKills = (bossKills || 0) * gameData.bossKills; // 5 coins per point
+  const scoreFromTime = Math.floor((time || 0)) * gameData.timeBonus; // 2 coins per 10 sec
+  const finalScore = scoreFromPoints + scoreFromTime + scoreFromBossKills;
   // ------------------------------
+
+      // return makeResponse(res, BAD_REQUEST, false, 'reward already claimed by user', {finalScore });
 
 
 
@@ -340,7 +343,7 @@ router.post("/game/finish", UserMiddleware, validators('GAME_FINISH'), handleReq
       userTournamentId: tournament.id,
       score: finalScore,
       // scoreAry: [score], // or [] if not using
-      stats: { points, time, scoreFromPoints, scoreFromTime }, // optional for debugging
+      stats: { kills, time, scoreFromPoints, scoreFromTime, scoreFromBossKills }, // optional for debugging
       scoreSubmit: true,
       timerStarted: true,
     },

@@ -179,7 +179,7 @@ export async function insertDefaults() {
 
   const gameDefaults = [
     {
-      gameName: "2 min",
+      gameName: "survival",
       serverGameName: "",
       keyboardGameName: "",
       url: "",
@@ -188,21 +188,9 @@ export async function insertDefaults() {
       entryFee: 0,
       currencyType: "free",
       winningCurrencyType: "virtual1",
-      coins: 5,
-      timeBonus: 2,
-    },
-    {
-      gameName: "10 min",
-      serverGameName: "",
-      keyboardGameName: "",
-      url: "",
-      miniAppUrl: "",
-      iMessage_Solo: "",
-      entryFee: 0,
-      currencyType: "free",
-      winningCurrencyType: "virtual1",
-      coins: 5,
-      timeBonus: 2,
+      timeBonus: 1,
+      kills: 1,
+      bossKills: 100,
     }
   ];
 

@@ -79,9 +79,10 @@ export const validationSchema = (action) => {
         gameId: Joi.number().required(),
         roomId: Joi.number().required(),
         tournamentId: Joi.number().required(),
-        points: Joi.number().required(),
+        // points: Joi.number().required(),
+        kills: Joi.number().required(),
         time: Joi.number().required(),
-
+        bossKills: Joi.number().required(),
       };
     }
 
@@ -288,10 +289,10 @@ export const validationSchema = (action) => {
         entryFee: Joi.number().required(),
         currencyType: Joi.string().required().valid(...GAME_ENTRY_TYPE),
         winningCurrencyType: Joi.string().required().valid(...CURRENCY_TYPE),
-        rank1: Joi.number().required(),
-        rank2: Joi.number().required(),
-        rank3: Joi.number().required(),
-        rank4: Joi.number().required(),
+        kills: Joi.number().required(),
+        timeBonus: Joi.number().required(),
+        bossKills: Joi.number().required()
+      
       };
 
     }

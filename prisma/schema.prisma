@@ -293,9 +293,12 @@ model games {
   entryFee            Float
   currencyType        String  @default("virtual1") // "free", "virtual1", "virtual2"
   winningCurrencyType String  @default("virtual2") //"virtual1", "virtual2"
-  coins               Float
-  timeBonus           Float
+  kills               Float   @default(1)
+  timeBonus           Float   @default(1)
+  bossKills           Float   @default(100)
 }
+
+
 
 model spin_wheels {
   id               Int                @id @default(autoincrement())

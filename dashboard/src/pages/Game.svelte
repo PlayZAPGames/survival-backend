@@ -29,6 +29,9 @@
     entryFee: null,
     currencyType: null,
     winningCurrencyType: null,
+    kills: null,
+    timeBonus: null,
+    bossKills: null,
     rank1: null,
     rank2: null,
     rank3: null,
@@ -66,6 +69,9 @@
       entryFee: null,
       currencyType: null,
       winningCurrencyType: null,
+      kills: null,
+      timeBonus: null,
+      bossKills: null,
       rank1: null,
       rank2: null,
       rank3: null,
@@ -82,6 +88,9 @@
       entryFee: data.entryFee,
       currencyType: data.currencyType,
       winningCurrencyType: data.winningCurrencyType,
+      kills: data.kills,
+      timeBonus: data.timeBonus,
+      bossKills: data.bossKills,
       rank1: data.rank1,
       rank2: data.rank2,
       rank3: data.rank3,
@@ -209,10 +218,9 @@
                 <th>Entry fee</th>
                 <th>Currency</th>
                 <th>Winning Currency</th>
-                <th>Rank 1</th>
-                <th>Rank 2</th>
-                <th>Rank 3</th>
-                <th>Rank 4</th>
+                <th>Kills</th>
+                <th>Time Bonus</th>
+                <th>Boss Kills</th>
                 <th>Actions</th>
               </tr>
             </thead>
@@ -223,10 +231,9 @@
                   <td>{tableData?.entryFee}</td>
                   <td>{tableData?.currencyType}</td>
                   <td>{tableData?.winningCurrencyType}</td>
-                  <td>{tableData?.rank1}</td>
-                  <td>{tableData?.rank2}</td>
-                  <td>{tableData?.rank3}</td>
-                  <td>{tableData?.rank4}</td>
+                  <td>{tableData?.kills}</td>
+                  <td>{tableData?.timeBonus}</td>
+                  <td>{tableData?.bossKills}</td>
                   <td>
                     <div class="action-column">
                       <span class="action-btn" on:click={() => openEditModal(tableData)}>
@@ -277,17 +284,16 @@
           <option value={CURRENCY_TYPE[1]}>{CURRENCY_TYPE[1]}</option>
         </select>
 
-        <label>Rank 1</label>
-        <input type="number" bind:value={formData.rank1} />
+        <label>Kills</label>
+        <input type="number" step="1" bind:value={formData.kills} />
 
-        <label>Rank 2</label>
-        <input type="number" bind:value={formData.rank2} />
+        <label>Time Bonus</label>
+        <input type="number" step="1" bind:value={formData.timeBonus} />
 
-        <label>Rank 3</label>
-        <input type="number" bind:value={formData.rank3} />
+        <label>Boss Kills</label>
+        <input type="number" step="1" bind:value={formData.bossKills} />
 
-        <label>Rank 4</label>
-        <input type="number" bind:value={formData.rank4} />
+       
 
         <button class="submit-btn" type="submit">Submit</button>
       </form>

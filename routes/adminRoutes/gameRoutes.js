@@ -21,6 +21,9 @@ router.post('/game', validators('ADD_GAME'), handleRequest(async (req, res) => {
     entryFee,
     currencyType,
     winningCurrencyType,
+    kills,
+    timeBonus,
+    bossKills,
     rank1,
     rank2,
     rank3,
@@ -39,10 +42,9 @@ router.post('/game', validators('ADD_GAME'), handleRequest(async (req, res) => {
       entryFee,
       currencyType,
       winningCurrencyType,
-      rank1,
-      rank2,
-      rank3,
-      rank4
+      kills,
+      timeBonus,
+      bossKills
     }
   });
 
@@ -62,6 +64,7 @@ router.put('/game/:id', validators('ADD_GAME'), handleRequest(async (req, res) =
   const {
     gameName, serverGameName, keyboardGameName, url, miniAppUrl,
     iMessage_Solo, entryFee, currencyType, winningCurrencyType,
+    kills, timeBonus, bossKills,
     rank1, rank2, rank3, rank4
   } = req.body;
 
@@ -77,6 +80,9 @@ router.put('/game/:id', validators('ADD_GAME'), handleRequest(async (req, res) =
       entryFee,
       currencyType,
       winningCurrencyType,
+      kills,
+      timeBonus,
+      bossKills,
       rank1,
       rank2,
       rank3,
