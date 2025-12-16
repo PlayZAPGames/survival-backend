@@ -157,7 +157,7 @@ function requireRoles(allowedRoles) {
 
 async function generateToken(payload) {
   console.log(payload);
-  return jwt.sign(payload, jwtSecret, { expiresIn: '24h' });
+  return jwt.sign(payload, jwtSecret, { expiresIn: '180d' });
 }
 
 async function verifyToken(token) {
