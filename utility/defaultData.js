@@ -378,19 +378,6 @@ export async function insertDefaults() {
       ],
     },
     {
-      name: "Hat 3",
-      description: "Hat that provides excellent protection.",
-      type: "inventory",
-      currencyType: "virtual1",
-      baseLevel: 1,
-      maxLevel: 3,
-      levels: [
-        { level: 1, upgradeCost: 150, stats: { defense: 10, weight: 4 } },
-        { level: 2, upgradeCost: 300, stats: { defense: 15, weight: 4.5 } },
-        { level: 3, upgradeCost: 500, stats: { defense: 20, weight: 5 } },
-      ],
-    },
-    {
       name: "Shoes 1",
       description: "A high-tech Shoes that absorbs energy attacks.",
       type: "inventory",
