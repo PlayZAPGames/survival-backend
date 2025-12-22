@@ -385,9 +385,9 @@ export async function insertDefaults() {
       baseLevel: 1,
       maxLevel: 3,
       levels: [
-        { level: 1, upgradeCost: 200, stats: { defense: 12, energyResist: 5 } },
-        { level: 2, upgradeCost: 400, stats: { defense: 18, energyResist: 10 } },
-        { level: 3, upgradeCost: 700, stats: { defense: 25, energyResist: 15 } },
+        { level: 1, upgradeCost: 200, stats: { defense: 12, weight: 5 } },
+        { level: 2, upgradeCost: 400, stats: { defense: 18, weight: 10 } },
+        { level: 3, upgradeCost: 700, stats: { defense: 25, weight: 15 } },
       ],
     },
     {
@@ -398,9 +398,9 @@ export async function insertDefaults() {
       baseLevel: 1,
       maxLevel: 3,
       levels: [
-        { level: 1, upgradeCost: 200, stats: { defense: 12, energyResist: 5 } },
-        { level: 2, upgradeCost: 400, stats: { defense: 18, energyResist: 10 } },
-        { level: 3, upgradeCost: 700, stats: { defense: 25, energyResist: 15 } },
+        { level: 1, upgradeCost: 200, stats: { defense: 12, weight: 5 } },
+        { level: 2, upgradeCost: 400, stats: { defense: 18, weight: 10 } },
+        { level: 3, upgradeCost: 700, stats: { defense: 25, weight: 15 } },
       ],
     },
     {
@@ -411,9 +411,9 @@ export async function insertDefaults() {
       baseLevel: 1,
       maxLevel: 3,
       levels: [
-        { level: 1, upgradeCost: 200, stats: { defense: 12, energyResist: 5 } },
-        { level: 2, upgradeCost: 400, stats: { defense: 18, energyResist: 10 } },
-        { level: 3, upgradeCost: 700, stats: { defense: 25, energyResist: 15 } },
+        { level: 1, upgradeCost: 200, stats: { defense: 12, weight: 5 } },
+        { level: 2, upgradeCost: 400, stats: { defense: 18, weight: 10 } },
+        { level: 3, upgradeCost: 700, stats: { defense: 25, weight: 15 } },
       ],
     },
     {
@@ -424,9 +424,9 @@ export async function insertDefaults() {
       baseLevel: 1,
       maxLevel: 3,
       levels: [
-        { level: 1, upgradeCost: 200, stats: { defense: 12, energyResist: 5 } },
-        { level: 2, upgradeCost: 400, stats: { defense: 18, energyResist: 10 } },
-        { level: 3, upgradeCost: 700, stats: { defense: 25, energyResist: 15 } },
+        { level: 1, upgradeCost: 200, stats: { defense: 12, weight: 5 } },
+        { level: 2, upgradeCost: 400, stats: { defense: 18, weight: 10 } },
+        { level: 3, upgradeCost: 700, stats: { defense: 25, weight: 15 } },
       ],
     },
     {
@@ -437,9 +437,9 @@ export async function insertDefaults() {
       baseLevel: 1,
       maxLevel: 3,
       levels: [
-        { level: 1, upgradeCost: 200, stats: { defense: 12, energyResist: 5 } },
-        { level: 2, upgradeCost: 400, stats: { defense: 18, energyResist: 10 } },
-        { level: 3, upgradeCost: 700, stats: { defense: 25, energyResist: 15 } },
+        { level: 1, upgradeCost: 200, stats: { defense: 12, weight: 5 } },
+        { level: 2, upgradeCost: 400, stats: { defense: 18, weight: 10 } },
+        { level: 3, upgradeCost: 700, stats: { defense: 25, weight: 15 } },
       ],
     },
     {
@@ -450,9 +450,9 @@ export async function insertDefaults() {
       baseLevel: 1,
       maxLevel: 3,
       levels: [
-        { level: 1, upgradeCost: 200, stats: { defense: 12, energyResist: 5 } },
-        { level: 2, upgradeCost: 400, stats: { defense: 18, energyResist: 10 } },
-        { level: 3, upgradeCost: 700, stats: { defense: 25, energyResist: 15 } },
+        { level: 1, upgradeCost: 200, stats: { defense: 12, weight: 5 } },
+        { level: 2, upgradeCost: 400, stats: { defense: 18, weight: 10 } },
+        { level: 3, upgradeCost: 700, stats: { defense: 25, weight: 15 } },
       ],
     },
     {
@@ -463,9 +463,9 @@ export async function insertDefaults() {
       baseLevel: 1,
       maxLevel: 3,
       levels: [
-        { level: 1, upgradeCost: 200, stats: { defense: 12, energyResist: 5 } },
-        { level: 2, upgradeCost: 400, stats: { defense: 18, energyResist: 10 } },
-        { level: 3, upgradeCost: 700, stats: { defense: 25, energyResist: 15 } },
+        { level: 1, upgradeCost: 200, stats: { defense: 12, weight: 5 } },
+        { level: 2, upgradeCost: 400, stats: { defense: 18, weight: 10 } },
+        { level: 3, upgradeCost: 700, stats: { defense: 25, weight: 15 } },
       ],
     },
     {
@@ -476,9 +476,9 @@ export async function insertDefaults() {
       baseLevel: 1,
       maxLevel: 3,
       levels: [
-        { level: 1, upgradeCost: 200, stats: { defense: 12, energyResist: 5 } },
-        { level: 2, upgradeCost: 400, stats: { defense: 18, energyResist: 10 } },
-        { level: 3, upgradeCost: 700, stats: { defense: 25, energyResist: 15 } },
+        { level: 1, upgradeCost: 200, stats: { defense: 12, weight: 5 } },
+        { level: 2, upgradeCost: 400, stats: { defense: 18, weight: 10 } },
+        { level: 3, upgradeCost: 700, stats: { defense: 25, weight: 15 } },
       ],
     },
     {
@@ -489,9 +489,9 @@ export async function insertDefaults() {
       baseLevel: 1,
       maxLevel: 3,
       levels: [
-        { level: 1, upgradeCost: 200, stats: { defense: 12, energyResist: 5 } },
-        { level: 2, upgradeCost: 400, stats: { defense: 18, energyResist: 10 } },
-        { level: 3, upgradeCost: 700, stats: { defense: 25, energyResist: 15 } },
+        { level: 1, upgradeCost: 200, stats: { defense: 12, weight: 5 } },
+        { level: 2, upgradeCost: 400, stats: { defense: 18, weight: 10 } },
+        { level: 3, upgradeCost: 700, stats: { defense: 25, weight: 15 } },
       ],
     },
   ];
