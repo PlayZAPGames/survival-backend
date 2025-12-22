@@ -309,13 +309,99 @@ function formatItemResponse(storeItem, userPurchase) {
   };
 }
 
+// export async function listStoreItems(userId) {
+//   const storeItems = await prisma.storeItem.findMany({
+//     include: {
+//       // levels: { 
+//       //   orderBy: { level: 'asc' },
+//       //   where: { level: { in: [1, 2, 3] } }
+//       // },
+//       UserPurchase: {
+//         where: { userId },
+//         select: { 
+//           id: true,
+//           currentLevel: true, 
+//           unlocked: true 
+//         },
+//       },
+//     },
+//   });
+
+//   const response = storeItems.map(item => {
+//     const userPurchase = item.UserPurchase[0];
+//     const isPurchased = userPurchase?.unlocked || false;
+//     const currentLevel = userPurchase?.currentLevel || 1;
+
+//     // const level1Data = item.levels.find(l => l.level === 1);
+//     // const nextLevel = isPurchased && currentLevel < item.maxLevel 
+//     //   ? item.levels.find(l => l.level === currentLevel + 1)
+//     //   : null;
+
+//     // Purchase cost is level 1 upgradeCost
+//     // const purchaseCost = level1Data?.upgradeCost || 0;
+    
+//     // Auto-detect suggested action and cost
+//     // let suggestedAction = 'buy';
+//     // let suggestedCost = purchaseCost;
+    
+//     // if (isPurchased) {
+//     //   if (currentLevel < item.maxLevel) {
+//     //     suggestedAction = 'upgrade';
+//     //     suggestedCost = nextLevel?.upgradeCost || 0;
+//     //   } else {
+//     //     suggestedAction = 'max_level';
+//     //     suggestedCost = 0;
+//     //   }
+//     // }
+
+//     return {
+//       id: item.id,
+//       name: item.name,
+//       // description: item.description,
+//       type: item.type,
+//       // baseLevel: item.baseLevel,
+//       // maxLevel: item.maxLevel,
+//       currentLevel: currentLevel,
+//       unlocked: isPurchased,
+//       // currentStats: item.levels.find(l => l.level === currentLevel)?.stats,
+      
+//       // Price information (all from levels table)
+//       // purchaseCost: purchaseCost, // Cost to buy = level 1 upgradeCost
+//       // nextUpgradeCost: nextLevel?.upgradeCost || null, // Cost for next level
+//       // currencyType: item.currencyType || 'virtual1',
+      
+//       // Action information
+//       // suggestedAction: suggestedAction,
+//       // suggestedCost: suggestedCost,
+      
+//       // Detailed flags
+//       // canBuy: !isPurchased,
+//       // canUpgrade: isPurchased && currentLevel < item.maxLevel,
+//       // isMaxLevel: isPurchased && currentLevel >= item.maxLevel,
+      
+//       // nextLevelStats: nextLevel?.stats || null,
+      
+//       // levels: item.levels.map(lvl => ({
+//       //   level: lvl.level,
+//       //   upgradeCost: lvl.upgradeCost,
+//       //   stats: lvl.stats,
+//       // })),
+//     };
+//   });
+
+//   return response;
+// }
+
+
 export async function listStoreItems(userId) {
   const storeItems = await prisma.storeItem.findMany({
     include: {
-      // levels: { 
-      //   orderBy: { level: 'asc' },
-      //   where: { level: { in: [1, 2, 3] } }
-      // },
+      levels: {
+        select: {
+          level: true,
+          stats: true,
+        },
+      },
       UserPurchase: {
         where: { userId },
         select: { 
@@ -332,60 +418,20 @@ export async function listStoreItems(userId) {
     const isPurchased = userPurchase?.unlocked || false;
     const currentLevel = userPurchase?.currentLevel || 1;
 
-    // const level1Data = item.levels.find(l => l.level === 1);
-    // const nextLevel = isPurchased && currentLevel < item.maxLevel 
-    //   ? item.levels.find(l => l.level === currentLevel + 1)
-    //   : null;
-
-    // Purchase cost is level 1 upgradeCost
-    // const purchaseCost = level1Data?.upgradeCost || 0;
-    
-    // Auto-detect suggested action and cost
-    // let suggestedAction = 'buy';
-    // let suggestedCost = purchaseCost;
-    
-    // if (isPurchased) {
-    //   if (currentLevel < item.maxLevel) {
-    //     suggestedAction = 'upgrade';
-    //     suggestedCost = nextLevel?.upgradeCost || 0;
-    //   } else {
-    //     suggestedAction = 'max_level';
-    //     suggestedCost = 0;
-    //   }
-    // }
+    // 🔹 Find current level stats
+    const currentLevelData = item.levels.find(
+      lvl => lvl.level === currentLevel
+    );
 
     return {
       id: item.id,
       name: item.name,
-      // description: item.description,
       type: item.type,
-      // baseLevel: item.baseLevel,
-      // maxLevel: item.maxLevel,
-      currentLevel: currentLevel,
+      currentLevel,
       unlocked: isPurchased,
-      // currentStats: item.levels.find(l => l.level === currentLevel)?.stats,
-      
-      // Price information (all from levels table)
-      // purchaseCost: purchaseCost, // Cost to buy = level 1 upgradeCost
-      // nextUpgradeCost: nextLevel?.upgradeCost || null, // Cost for next level
-      // currencyType: item.currencyType || 'virtual1',
-      
-      // Action information
-      // suggestedAction: suggestedAction,
-      // suggestedCost: suggestedCost,
-      
-      // Detailed flags
-      // canBuy: !isPurchased,
-      // canUpgrade: isPurchased && currentLevel < item.maxLevel,
-      // isMaxLevel: isPurchased && currentLevel >= item.maxLevel,
-      
-      // nextLevelStats: nextLevel?.stats || null,
-      
-      // levels: item.levels.map(lvl => ({
-      //   level: lvl.level,
-      //   upgradeCost: lvl.upgradeCost,
-      //   stats: lvl.stats,
-      // })),
+
+      // ✅ NEW: current stats block
+      currentStats: currentLevelData?.stats || {},
     };
   });
 
