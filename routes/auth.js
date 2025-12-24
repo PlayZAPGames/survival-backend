@@ -8,6 +8,7 @@ const router = express.Router();
 import { validators } from "../middleware/validateResource/index.js";
 import { numberToSlug, slugToNumber, slugType } from "../utility/cypher.js";
 import { createUserWallet } from "../controllers/shop.js";
+import { grantDefaultUnlockedItems } from "../controllers/store.js";
 import { getFirebaseUser } from "../utility/verifyFirebaseToken.js";
 
 
@@ -163,6 +164,9 @@ router.post("/login", validators('USER_SIGNUP'), async (req, res) => {
 
       // Create a random wallet for the user
       await createUserWallet(user.id);
+
+      // Grant default unlocked store items (real purchase records, no cost)
+      await grantDefaultUnlockedItems(user.id);
 
       // Generate and send JWT token
       const token = await generateToken({ userId: user.id });

@@ -393,6 +393,50 @@ function formatItemResponse(storeItem, userPurchase) {
 // }
 
 
+
+// List of item IDs that should be unlocked by default for all users
+// When a new user is created, these items will be purchased for them at no cost.
+const defaultUnlockedItemIds = [
+ 2,5,8,10,13,16
+];
+
+/**
+ * Call this function after creating a new user to grant default unlocked items as real purchases (at no cost).
+ * @param {string|number} userId - The new user's ID
+ */
+export async function grantDefaultUnlockedItems(userId) {
+  if (!userId) return;
+  if (!defaultUnlockedItemIds.length) return;
+
+  // Fetch all default unlocked items (to get their type, etc. if needed)
+  const items = await prisma.storeItem.findMany({
+    where: { id: { in: defaultUnlockedItemIds } },
+    select: { id: true },
+  });
+
+  // Upsert purchase records for each item
+  for (const item of items) {
+    await prisma.userPurchase.upsert({
+      where: {
+        userId_itemId: {
+          userId: userId,
+          itemId: item.id,
+        },
+      },
+      update: {
+        unlocked: true,
+        currentLevel: 1,
+      },
+      create: {
+        userId: userId,
+        itemId: item.id,
+        unlocked: true,
+        currentLevel: 1,
+      },
+    });
+  }
+}
+
 export async function listStoreItems(userId) {
   const storeItems = await prisma.storeItem.findMany({
     include: {
