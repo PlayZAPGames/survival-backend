@@ -45,7 +45,11 @@ export async function getDailyRewards(userId) {
   try {
 
     let userSession = await dbQuery.getDailyRewards(userId);
+
+    console.log("userSession", userSession);
+    
     const currentDate = EpochTime(0);
+
 
     if (userSession.length === 0) {
       console.log("!userSession");

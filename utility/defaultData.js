@@ -573,4 +573,73 @@ export async function insertDefaults() {
     }
   }
   console.log("✅ Default master records ensured.");
+
+
+
+    // =========================================================
+  // 🧠 BOT USER INSERTION SECTION
+  // =========================================================
+
+  const firstNames = [
+    "Logan", "Ethan", "Liam", "Noah", "Oliver", "Elijah", "James", "William",
+    "Benjamin", "Lucas", "Mason", "Henry", "Alexander", "Jack", "Michael",
+    "Sebastian", "Daniel", "Jacob", "Owen", "Samuel", "Aiden", "Matthew",
+    "Joseph", "Levi", "David", "John", "Wyatt", "Carter", "Julian", "Luke",
+    "Grayson", "Isaac", "Jayden", "Theodore", "Gabriel", "Anthony", "Dylan",
+    "Leo", "Lincoln", "Jaxon", "Asher", "Christopher", "Josiah", "Andrew",
+    "Thomas", "Caleb", "Hudson", "Ryan", "Nathan", "Hunter", "Nicholas"
+  ];
+
+  const lastNames = [
+    "Brooks", "Mitchell", "Reed", "Gray", "Parker", "Cooper", "Rogers", "Price",
+    "Howard", "Ward", "Kelly", "Carter", "Bailey", "Sanders", "Foster", "Graham",
+    "Morgan", "Spencer", "Ross", "Scott", "Turner", "Evans", "Morris", "Collins",
+    "James", "Murphy", "Jenkins", "Reyes", "Gonzalez", "Wright", "Murray",
+    "Dunn", "Fisher", "Hunt", "Holmes", "Rice", "Grant", "Stephens", "Dean",
+    "Perry", "Simpson", "Fox", "Harrison", "Palmer", "Weaver", "Bishop", "Fleming",
+    "Arnold", "Maxwell", "Rowe"
+  ];
+
+  function randomName() {
+    const first = firstNames[Math.floor(Math.random() * firstNames.length)];
+    const last = lastNames[Math.floor(Math.random() * lastNames.length)];
+    return `${first} ${last}`;
+  }
+
+  console.log("🧠 Checking for existing bot users...");
+  const existingBots = await prisma.users.count({ where: { role: "bot" } });
+
+  if (existingBots < 50) {
+    const botsToCreate = 50 - existingBots;
+
+    const botUsers = Array.from({ length: botsToCreate }).map(() => {
+      const username = randomName();
+      return {
+        socialId: `bot_${Math.random().toString(36).substring(2, 10)}`,
+        loginType: "guest",
+        username,
+        imageIndex: Math.floor(Math.random() * 20) + 1,
+        lastActive: Math.floor(Date.now() / 1000),
+        role: "bot",
+        status: 0,
+        language: "en",
+        botStart: true,
+        notification: false,
+        virtual1: 0,
+        virtual2: 0,
+        gamesPlayed: 0,
+        gamesWon: 0,
+        referree: {},
+      };
+    });
+
+    await prisma.users.createMany({
+      data: botUsers,
+      skipDuplicates: true,
+    });
+
+    console.log(`✅ Inserted ${botsToCreate} new bot users.`);
+  } else {
+    console.log(`✅ ${existingBots} bot users already exist. Skipping creation.`);
+  }
 }
