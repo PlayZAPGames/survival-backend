@@ -1,4 +1,5 @@
 import cron from "node-cron";
+import axios from 'axios';
 import prisma from "../prisma/db.js";
 import * as bank from "../utility/walletService.js";
 import { transferPzpReward } from "../controllers/shop.js";
@@ -228,6 +229,24 @@ async function retryFailedTransactions() {
   }
 }
 
+
+const WEBHOOK_URL = 'https://discord.com/api/webhooks/1432355273753886832/aEZ_nOicm-QkZnHAi6_-QTELSQo2s9o4NhWNn3cb1IWFaCz5sOZMVl1ntRxWrc308_eD';
+
+// Discord Role ID for tagging
+const ROLE_ID = '829583383310368809';
+
+async function sendAlert(message) {
+  try {
+    await axios.post(WEBHOOK_URL, {
+      username: 'Survival Weekly reward bot',
+      content: message,
+    });
+    console.log('Alert sent successfully!');
+  } catch (err) {
+    console.error('Failed to send alert:', err.message);
+  }
+}
+
 //
 // 🔹 Main entrypoint: setup cron jobs
 //
@@ -238,6 +257,10 @@ function WeeklyRewardsCronJobs() {
     
   // runs every 10 seconds for testing
   // cron.schedule("*/10 * * * * *", async () => {
+
+
+      await sendAlert(`<@&${ROLE_ID}> ✅ Survival Weekly reward assign completed!`);
+
     console.log("🚀 Running weekly leaderboard reward job...");
     try {
       await distributeWeeklyRewards();
