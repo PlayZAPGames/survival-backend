@@ -277,10 +277,11 @@
                 />
               </div>
             </div>
-          </div>
+
             <div class="ml-4 space-x-2 flex">
-            <button class="btn btn-primary m-0" on:click={addBots}>Add/increase Bots score</button>
-            <!-- <button class="btn btn-primary m-0" on:click={increaseBotsScore}>Increase Bots score</button> -->
+              <button class="btn btn-primary m-0" on:click={addBots}>Add/increase Bots score</button>
+              <!-- <button class="btn btn-primary m-0" on:click={increaseBotsScore}>Increase Bots score</button> -->
+            </div>
           </div>
         </div>
         <div class=" card-body table-wrapper">
@@ -509,5 +510,13 @@
     margin-top: 1rem;
     font-weight: 500;
     color: #888;
+  }
+  .btn-primary {
+    margin: 10px !important;
+    margin-top: 25px !important;
+    color: #fff !important;
+    background-color: #4e73df !important;
+    border-color: #4e73df !important;
+    width: fit-content;
   }
 </style>

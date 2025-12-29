@@ -4,7 +4,8 @@ import { handleRequest } from "../../helpers/requestHandler/asyncHandler.js";
 import { makeResponse, responseMessages, statusCodes } from "../../helpers/index.js";
 import { numberToSlug, slugToNumber, slugType } from "../../utility/cypher.js";
 import { validators } from '../../middleware/validateResource/index.js';
-import { startOfDay, endOfDay, startOfWeek, endOfWeek, subWeeks } from "date-fns";
+import { seedBotScores } from "../../utility/weeklyRewardCron.js";
+
 
 
 const router = express.Router();
