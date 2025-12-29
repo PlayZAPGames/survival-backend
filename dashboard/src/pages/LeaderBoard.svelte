@@ -3,7 +3,7 @@
   import baseUrl from '../config'
   import { sidebarOpen } from '../stores/sidebar'
   import Paginations from '../lib/Paginations.svelte'
-
+  import toast from 'svelte-french-toast'
   import Flatpickr from 'svelte-flatpickr'
   import 'flatpickr/dist/themes/material_blue.css'
 
