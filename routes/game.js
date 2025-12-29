@@ -14,82 +14,177 @@ import { getUserWallet } from "../utility/walletService.js";
 import { startOfDay, endOfDay, startOfWeek, endOfWeek, subWeeks } from "date-fns";
 
 
+// router.get("/game/leaderboard", UserMiddleware, handleRequest(async function (req, res) {
+
+//   const now = new Date();
+
+//   // Get current week range (Monday–Sunday)
+//   const weekStart = startOfWeek(now, { weekStartsOn: 1 });
+//   const weekEnd = endOfWeek(now, { weekStartsOn: 1 });
+//   const currentUserId = req.user.id; // Get current user ID from middleware
+
+//   // Get pagination params
+//   const page = parseInt(req.query.page, 10) || 1;
+//   const limit = parseInt(req.query.limit, 10) || 20;
+//   const skip = (page - 1) * limit;
+
+//   const dateFilter = {
+//     gte: weekStart,
+//     lte: weekEnd,
+  
+//   };
+
+//   // Get all user rewards for ranking
+//   const allUserRewards = await prisma.userGameRewardHistory.groupBy({
+//     by: ["userId"],
+//     _sum: { reward: true },
+//     where: { createdAt: dateFilter },
+//     orderBy: {
+//       _sum: { reward: "desc" },
+//     },
+//   });
+
+//   const total = allUserRewards.length;
+//   const totalPages = Math.ceil(total / limit);
+
+//   // Find current user's rank
+//   const currentUserRank = allUserRewards.findIndex(r => r.userId === currentUserId) + 1;
+//   const currentUserTotal = allUserRewards.find(r => r.userId === currentUserId)?._sum?.reward || 0;
+
+//   // Paginated leaderboard rewards
+//   const rewards = allUserRewards.slice(skip, skip + limit);
+
+//   const userIds = rewards.map((r) => r.userId);
+
+//   const users = await prisma.users.findMany({
+//     where: { id: { in: userIds } },
+//     select: {
+//       id: true,
+//       username: true,
+//       imageIndex: true,
+//     },
+//   });
+
+//   const userMap = Object.fromEntries(users.map(u => [u.id, u]));
+
+//   const leaderboard = rewards.map((r, index) => ({
+//     rank: skip + index + 1,
+//     userId: r.userId,
+//     username: userMap[r.userId]?.username || "Guest",
+//     imageIndex: userMap[r.userId]?.imageIndex || 0,
+//     totalReward: r._sum.reward || 0,
+//   }));
+
+//   const pagination = {
+//     total,
+//     page,
+//     limit,
+//     totalPages,
+//   };
+
+//   return makeResponse(res, statusCodes.SUCCESS, true, "Leaderboard fetched", {
+//     weekStart: weekStart,
+//     weekEnd: weekEnd,
+//     pagination,
+//     leaderboard,
+//     currentUser: {
+//       rank: currentUserRank,
+//       totalReward: currentUserTotal,
+//     },
+//   });
+// }));
+
+
 router.get("/game/leaderboard", UserMiddleware, handleRequest(async function (req, res) {
-
   const now = new Date();
+  const weekParam = req.query.week; // "last" or undefined
 
-  // Get current week range (Monday–Sunday)
-  const weekStart = startOfWeek(now, { weekStartsOn: 1 });
-  const weekEnd = endOfWeek(now, { weekStartsOn: 1 });
-  const currentUserId = req.user.id; // Get current user ID from middleware
+  // Compute week range
+  let weekStart, weekEnd;
+  if (weekParam === "last") {
+    weekStart = startOfWeek(subWeeks(now, 1), { weekStartsOn: 1 });
+    weekEnd = endOfWeek(subWeeks(now, 1), { weekStartsOn: 1 });
+  } else {
+    weekStart = startOfWeek(now, { weekStartsOn: 1 });
+    weekEnd = endOfWeek(now, { weekStartsOn: 1 });
+  }
 
-  // Get pagination params
+  const currentUserId = req.user.id;
+
+  // Pagination
   const page = parseInt(req.query.page, 10) || 1;
   const limit = parseInt(req.query.limit, 10) || 20;
   const skip = (page - 1) * limit;
 
-  const dateFilter = {
-    gte: weekStart,
-    lte: weekEnd,
-  
-  };
+  const dateFilter = { gte: weekStart, lte: weekEnd };
 
-  // Get all user rewards for ranking
+  // Aggregate rewards for the week
   const allUserRewards = await prisma.userGameRewardHistory.groupBy({
     by: ["userId"],
     _sum: { reward: true },
     where: { createdAt: dateFilter },
-    orderBy: {
-      _sum: { reward: "desc" },
-    },
+    orderBy: { _sum: { reward: "desc" } },
   });
 
   const total = allUserRewards.length;
   const totalPages = Math.ceil(total / limit);
 
-  // Find current user's rank
+  // Fetch prize config
+  const prizeConfig = await prisma.master.findUnique({
+    where: { key: "weeklyPrizePool" },
+  });
+
+  let weeklyPrizePool = [];
+  if (prizeConfig?.data1?.rewards) {
+    weeklyPrizePool = prizeConfig.data1.rewards;
+  }
+
+  // Helper to map rank → reward
+  function getRewardForRank(rank) {
+    const prize = weeklyPrizePool.find(p => rank >= p.from && rank <= p.to);
+    return prize ? prize.reward : 0;
+  }
+
+  // Current user rank info
   const currentUserRank = allUserRewards.findIndex(r => r.userId === currentUserId) + 1;
   const currentUserTotal = allUserRewards.find(r => r.userId === currentUserId)?._sum?.reward || 0;
+  const currentUserPossibleReward = currentUserRank ? getRewardForRank(currentUserRank) : 0;
 
-  // Paginated leaderboard rewards
+  // Paginated leaderboard
   const rewards = allUserRewards.slice(skip, skip + limit);
-
   const userIds = rewards.map((r) => r.userId);
 
   const users = await prisma.users.findMany({
     where: { id: { in: userIds } },
-    select: {
-      id: true,
-      username: true,
-      imageIndex: true,
-    },
+    select: { id: true, username: true, imageIndex: true },
   });
 
   const userMap = Object.fromEntries(users.map(u => [u.id, u]));
 
-  const leaderboard = rewards.map((r, index) => ({
-    rank: skip + index + 1,
-    userId: r.userId,
-    username: userMap[r.userId]?.username || "Guest",
-    imageIndex: userMap[r.userId]?.imageIndex || 0,
-    totalReward: r._sum.reward || 0,
-  }));
+  const leaderboard = rewards.map((r, index) => {
+    const rank = skip + index + 1;
+    return {
+      rank,
+      userId: r.userId,
+      username: userMap[r.userId]?.username || "Guest",
+      imageIndex: userMap[r.userId]?.imageIndex || 0,
+      totalReward: r._sum.reward || 0,
+      pzpReward: getRewardForRank(rank),
+    };
+  });
 
-  const pagination = {
-    total,
-    page,
-    limit,
-    totalPages,
-  };
+  const pagination = { total, page, limit, totalPages };
 
   return makeResponse(res, statusCodes.SUCCESS, true, "Leaderboard fetched", {
-    weekStart: weekStart,
-    weekEnd: weekEnd,
+    weekStart,
+    weekEnd,
+    isLastWeek: weekParam === "last",
     pagination,
     leaderboard,
     currentUser: {
       rank: currentUserRank,
       totalReward: currentUserTotal,
+      pzpReward: currentUserPossibleReward,
     },
   });
 }));
