@@ -208,5 +208,42 @@ router.get("/game/leaderboard", handleRequest(async function (req, res) {
 }));
 
 
+router.post("/seed-bot-scores", async (req, res) => {
+  try {
+   const result = await seedBotScores();
+    return res.json(result);
+  } catch (error) {
+    console.error("❌ Error seeding bot scores:", error);
+    return res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+router.post("/shuffle-bot-scores", async (req, res) => {
+  try {
+    const bots = await prisma.users.findMany({
+      where: { role: "bot" },
+      select: { id: true },
+    });
+
+    for (const bot of bots) {
+      const newScore =  Math.floor(Math.random() * 500) + 1; // random score 1–500;
+      await prisma.userGameRewardHistory.create({
+        data: {
+          userId: bot.id,
+          gameId: 1,
+          reward: newScore,
+          currency: "virtual1",
+          reason: "bot-refresh",
+        },
+      });
+    }
+
+    return res.json({ success: true, message: "✅ Bot scores updated and shuffled." });
+  } catch (error) {
+    console.error("❌ Shuffle failed:", error);
+    return res.status(500).json({ success: false, error: error.message });
+  }
+});
+
 
 export default router;

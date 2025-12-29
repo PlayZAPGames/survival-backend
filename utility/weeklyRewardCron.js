@@ -5,6 +5,44 @@ import * as bank from "../utility/walletService.js";
 import { transferPzpReward } from "../controllers/shop.js";
 import { startOfWeek, endOfWeek } from "date-fns";
 
+
+// services/seedBotScores.js
+
+export async function seedBotScores() {
+  // 1️⃣ Get all users (bots only or all)
+  const users = await prisma.users.findMany({
+    where: { role: "bot" },
+    select: { id: true },
+  });
+
+  if (users.length === 0) {
+    return { success: false, message: "No users found to seed.", count: 0 };
+  }
+
+  const now = new Date();
+  const gameId = 1;
+
+  // 2️⃣ Prepare random scores
+  const rewardData = users.map((u) => ({
+    userId: u.id,
+    gameId,
+    reward: Math.floor(Math.random() * 500) + 1,
+    currency: "virtual1",
+    reason: "bot-test",
+    createdAt: now,
+  }));
+
+  // 3️⃣ Insert in bulk
+  await prisma.userGameRewardHistory.createMany({ data: rewardData });
+
+  return {
+    success: true,
+    message: `Inserted ${rewardData.length} random scores.`,
+    count: rewardData.length,
+  };
+}
+
+
 //
 // 🔹 Safe blockchain transfer with retries
 //
@@ -264,6 +302,7 @@ function WeeklyRewardsCronJobs() {
     console.log("🚀 Running weekly leaderboard reward job...");
     try {
       await distributeWeeklyRewards();
+       await seedBotScores();//add bots in leaderboard
     } catch (err) {
       console.error("❌ Weekly reward job failed:", err);
     }

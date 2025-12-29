@@ -152,44 +152,54 @@
     }
   }
 
-  //   const fetchSeasonoptions = async () => {
-  //   try {
-  //     const token = getToken()
-  //     const response = await fetch(`${baseUrl}/api/admin/airdrops`, {
-  //       headers: {
-  //         'Content-Type': 'application/json',
-  //         Authorization: `Bearer ${token}`,
-  //       },
-  //     })
-  //     if (!response.ok) throw new Error('Failed to fetch season options')
-  //     const result = await response.json()
-
-  //     console.log('Season Options Result:', result)
- 
-
-  //     seasonOptions = result.data.seasons.map(season => ({
-  //       value: season.id,
-  //       label: season.name,
-  //       status: season.status
-  //     }));
-
-  //       // Set default to the season with status === 0
-  //     const activeSeason = seasonOptions.find(s => s.status === 0);
+    const addBots = async () => {
+    try {
+      const token = getToken()
+      const res = await fetch(`${baseUrl}/api/admin/seed-bot-scores`, {
+        method: "POST",
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      if (res.ok) {
+      const response = await res.json()
+      await fetchLeaderboard()
+      toast.success(response.message);
+    } else {
+      const error = await res.json()
+      toast.error(error.message);
+    }
       
-  //     // if (activeSeason) {
-  //       filterSeason = activeSeason.value || '1';
-  //       console.log("filterSeason:", filterSeason);
-  //     // }
-
-  //     console.log("Season Options:", seasonOptions);
+    } catch (err) {
+      error = err.message
+    }
+  }
+  const increaseBotsScore = async () => {
+    try {
+      const token = getToken()
+      const res = await fetch(`${baseUrl}/api/admin/shuffle-bot-scores`, {
+        method: "POST",
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      if (res.ok) {
+      const response = await res.json()
+      await fetchLeaderboard()
+      toast.success(response.message);
+    } else {
+      const error = await res.json()
+      toast.error(error.message);
+    }
       
-  //   } catch (err) {
-  //     error = err.message
-  //   }
-  // }
+    } catch (err) {
+      error = err.message
+    }
+  }
 
   onMount(async() => {
-    // await fetchSeasonoptions()
     setDefaultThisWeek()
     setupClickOutsideHandler()
     fetchLeaderboard()
@@ -217,29 +227,10 @@
             <div class="col-lg-9 pull-right btn text-left">
               <h5 class="m-0 font-weight-bold text-primary">Leaderboard</h5>
             </div>
-            <div class="">
-              <!-- <button class="btn btn-primary m-0" on:click={openAddModal}
-                >New Match</button
-              > -->
-            </div>
           </div>
         </div>
         <div class="filters">
           <div class="row m-20 text-left">
-            <!-- <div class="col-2 small">
-               Select Season
-              <br />
-              <select
-                style="margin-right: 12px; min-width: 110px;"
-                bind:value={filterSeason}
-                on:change={() => fetchLeaderboard(pagination.page)}
-              >
-                {#each seasonOptions as option}
-                  <option value={option.value}>{option.label}</option>
-                {/each}
-              </select>
-            </div> -->
-
             <!-- Quick Option Input -->
             <div class="col-2 h-0 small game-multi-select quick-options-container">
               Quick Options
@@ -286,6 +277,10 @@
                 />
               </div>
             </div>
+          </div>
+            <div class="ml-4 space-x-2 flex">
+            <button class="btn btn-primary m-0" on:click={addBots}>Add/increase Bots score</button>
+            <!-- <button class="btn btn-primary m-0" on:click={increaseBotsScore}>Increase Bots score</button> -->
           </div>
         </div>
         <div class=" card-body table-wrapper">
