@@ -291,7 +291,22 @@ export const callWithdrawalAPI = async (papi, payload, delayMs = 3000) => {
       body: body
     });
 
-    const result = await response.json();
+    // Check if response is JSON before parsing
+    const contentType = response.headers.get('content-type');
+    let result;
+    
+    if (contentType && contentType.includes('application/json')) {
+      result = await response.json();
+    } else {
+      // If not JSON, read as text and return error
+      const text = await response.text();
+      console.log("Withdrawal API returned non-JSON response:", text);
+      return {
+        success: false,
+        error: `Blockchain returned invalid response: ${text.substring(0, 100)}`,
+        status: response.status
+      };
+    }
 
     console.log("Withdrawal API response:", result);
     
@@ -311,6 +326,7 @@ export const callWithdrawalAPI = async (papi, payload, delayMs = 3000) => {
     };
   } catch (err) {
     console.error(`Blockchain call failed for withdraw:`, err.message);
+    console.error(`Stack:`, err.stack);
     return { success: false, error: err.message, status: 500 };
   }
 };
@@ -367,7 +383,22 @@ export const callAssignSwappedToken = async (payload, delayMs = 3000) => {
       body: JSON.stringify(payload)
     });
 
-    const result = await response.json();
+    // Check if response is JSON before parsing
+    const contentType = response.headers.get('content-type');
+    let result;
+    
+    if (contentType && contentType.includes('application/json')) {
+      result = await response.json();
+    } else {
+      // If not JSON, read as text and return error
+      const text = await response.text();
+      console.log("Escrow API returned non-JSON response:", text);
+      return {
+        success: false,
+        error: `Blockchain returned invalid response: ${text.substring(0, 100)}`,
+        status: response.status
+      };
+    }
 
     if (!response.ok) {
       return {

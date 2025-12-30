@@ -196,9 +196,21 @@ async function ticketConversion(user_id, amount, swapType) {
 
   const txnId = txn.id;
 
+  // 🔥 If swapType is coreToBsc, keep it pending for admin approval
+  if (swapType === 'coreToBsc') {
+    return {
+      pzpTransferred: to_amount,
+      commission: commissionAmount,
+      transactionId: txnId,
+      status: "pending",
+      message: "Swap request created. Waiting for admin approval."
+    };
+  }
+
+  // For bscToCore, process immediately (auto-approve)
   try {
     const withdrawalPayload = {
-      RecieverAddress: recieverAddress, // User's BSC wallet
+      RecieverAddress: recieverAddress, // User's Core wallet
       Amount: to_amount,
       CommissionAmount: commissionAmount,
       CommissionAddress: process.env.COMMISSION_WALLET, // Commission address from env

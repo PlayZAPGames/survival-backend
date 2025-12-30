@@ -164,6 +164,81 @@ const status_options = Object.entries(status).map(([key, value]) => ({
       loading = false
     }
   }
+
+  async function  approve(id) {
+    try {
+      const token = getToken();
+
+      console.log("Processing swap id", id);
+      console.log("token", token);
+      
+
+      const body = {
+        txnId: id,
+      }
+
+      console.log("body", body);
+
+      const response = await fetch(`${baseUrl}/api/admin/swap/approve`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(body)
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.log("Error response:", errorData);
+        alert(`Error: ${errorData.message || 'Unknown error'}`)
+        return;
+      }
+
+      const responseData = await response.json();
+      console.log("Swap processing response", responseData);
+      
+      alert(`Success: ${responseData.message}`)
+
+      fetchData()
+    } catch (error) {
+      console.error("Error in approve:", error);
+      alert(`Error: ${error.message}`)
+    }
+  }
+
+  async function rejected(id) {
+    try {
+      const token = getToken();
+
+      const body = {
+        txnId: id,
+      }
+      const response = await fetch(`${baseUrl}/api/admin/swap/reject`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(body)
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        alert(`Error: ${errorData.message || 'Unknown error'}`)
+        return;
+      }
+
+      const responseData = await response.json();
+      alert(`Success: ${responseData.message}`)
+
+      fetchData()
+    } catch (error) {
+      console.error("Error in rejected:", error);
+      alert(`Error: ${error.message}`)
+    }
+  }
+
   const debouncedFetch = debounce(fetchData, 400)
 
 
@@ -305,9 +380,11 @@ function truncateHash(hash) {
                 <th>id</th>
                 <th>Username</th>
                 <th>Amount</th>
+                <th>Tx Type</th>
                 <th>Status</th>
                 <th>Response / Transaction Hash</th>
                 <th>Date</th>
+                <th>Action</th>
               </tr>
             </thead>
             <tbody>
@@ -316,68 +393,81 @@ function truncateHash(hash) {
                   <td>{record.id}</td>
                   <td> <UserLink item={record} /></td>
                   <td>{record.amount}</td>
+                  <td>{record.transaction_type}</td>
                   <td>{record.status}</td>
                  <td style="text-align: left;">
-  <div style="font-family: monospace;">
-    {#if record.transaction_hash !== null}
-      {#if isJsonObject(record.transaction_hash)}
-        <!-- Parse JSON and handle different cases -->
-        {#if parseJsonSafely(record.transaction_hash)?.withdrawalTx}
-          <div>Withdrawal hash: 
-            <span style="display: inline-flex; align-items: center; gap: 4px;">
-              <Address receiver={parseJsonSafely(record.transaction_hash).withdrawalTx} />
-              {truncateHash(parseJsonSafely(record.transaction_hash).withdrawalTx)}
-            </span>
-          </div>
-        {/if}
-        
-        {#if parseJsonSafely(record.transaction_hash)?.escrowTx}
-          <div>Escrow hash: 
-            <span style="display: inline-flex; align-items: center; gap: 4px;">
-              <Address receiver={parseJsonSafely(record.transaction_hash).escrowTx} />
-              {truncateHash(parseJsonSafely(record.transaction_hash).escrowTx)}
-            </span>
-          </div>
-        {/if}
-        
-        {#if parseJsonSafely(record.transaction_hash)?.commission !== undefined}
-          <div>Commission: {parseJsonSafely(record.transaction_hash).commission}</div>
-        {/if}
-        
-        {#if parseJsonSafely(record.transaction_hash)?.error}
-          <div>Error: {parseJsonSafely(record.transaction_hash).error}</div>
-        {/if}
-        
-        {#if !parseJsonSafely(record.transaction_hash)}
-          {record.transaction_hash}
-        {/if}
-        
-      {:else}
-        <!-- Plain hash -->
-        <span style="display: inline-flex; align-items: center; gap: 4px;">
-          <Address receiver={record.transaction_hash} />
-          {truncateHash(record.transaction_hash)}
-        </span>
-      {/if}
-    {/if}
-  </div>
-</td>
-                  <!-- <td style="text-align: left;">
-                      <pre style="white-space: pre-wrap">
-                        {#if record.transaction_hash !== null}
-                          <Address
-                            receiver={record.transaction_hash}
-                          />
-                          {record.transaction_hash.substring(0, 15) +
-                            "..." +
-                            record.transaction_hash.substring(
-                              record.transaction_hash.length - 15,
-                              record.transaction_hash.length
-                            )}
+                    <div style="font-family: monospace;">
+                      {#if record.transaction_hash !== null}
+                        {#if isJsonObject(record.transaction_hash)}
+                          <!-- Parse JSON and handle different cases -->
+                          {#if parseJsonSafely(record.transaction_hash)?.withdrawalTx}
+                            <div>Withdrawal hash: 
+                              <span style="display: inline-flex; align-items: center; gap: 4px;">
+                                <Address receiver={parseJsonSafely(record.transaction_hash).withdrawalTx} />
+                                {truncateHash(parseJsonSafely(record.transaction_hash).withdrawalTx)}
+                              </span>
+                            </div>
+                          {/if}
+                          
+                          {#if parseJsonSafely(record.transaction_hash)?.escrowTx}
+                            <div>Escrow hash: 
+                              <span style="display: inline-flex; align-items: center; gap: 4px;">
+                                <Address receiver={parseJsonSafely(record.transaction_hash).escrowTx} />
+                                {truncateHash(parseJsonSafely(record.transaction_hash).escrowTx)}
+                              </span>
+                            </div>
+                          {/if}
+                          
+                          {#if parseJsonSafely(record.transaction_hash)?.commission !== undefined}
+                            <div>Commission: {parseJsonSafely(record.transaction_hash).commission}</div>
+                          {/if}
+                          
+                          {#if parseJsonSafely(record.transaction_hash)?.error}
+                            <div>Error: {parseJsonSafely(record.transaction_hash).error}</div>
+                          {/if}
+                          
+                          {#if !parseJsonSafely(record.transaction_hash)}
+                            {record.transaction_hash}
+                          {/if}
+                          
+                        {:else}
+                          <!-- Plain hash -->
+                          <span style="display: inline-flex; align-items: center; gap: 4px;">
+                            <Address receiver={record.transaction_hash} />
+                            {truncateHash(record.transaction_hash)}
+                          </span>
                         {/if}
-                      </pre>
-                  </td> -->
+                      {/if}
+                    </div>
+                  </td>
                   <td>{new Date(record?.createdAt).toLocaleString()}</td>
+                  <td class="actions">
+                    {#if record.status === 'failed'}
+                      <button
+                        on:click={() => {
+                          approve(record.id)
+                        }}>Reinit</button
+                      >
+                    {:else if record.status == 'pending'}
+                      <button
+                        on:click={() => {
+                          approve(record.id)
+                        }}>Approve</button
+                      >
+                      <!-- <hr />
+                      <button
+                        on:click={() => {
+                          success(item.id)
+                        }}>Success</button
+                      > -->
+                      <hr />
+                      <button
+                        on:click={() => {
+                          rejected(record.id)
+                        }}>Reject</button
+                      >
+                    {/if}
+                  </td>
                 </tr>
               {/each}
             </tbody>

@@ -9,6 +9,8 @@ import { deductEvmBalance, transferPzpReward, transferEvmNativeBalance } from ".
 import { makeResponse, responseMessages, statusCodes } from "../helpers/index.js";
 const { SUCCESS, BAD_REQUEST, SERVER_ERROR } = statusCodes;
 import { approveWithdrawal } from "../utility/blockChainServices.js";
+import { getWalletBalance } from "../utility/blockChainServices.js";
+import { decrypt } from "../utility/cypher.js";
 
 import dotenv from 'dotenv';
 
@@ -259,75 +261,176 @@ router.post("/admin/withdrawal/reject", AdminMiddleware, async function (req, re
  return res.status(200).json({ status: 1, message: "withdraw request rejected sucessfully" });
 });
 
-router.post("/admin/approve/rewardSwap", AdminMiddleware, async function (req, res) {
+router.post("/admin/swap/approve", AdminMiddleware, async function (req, res) {
   const { txnId } = req.body;
   console.log("txnId", txnId);
+  let symbol = "pzp_core";
 
-  let data = await prisma.userWalletHistory.findFirst({
-    where: {
-      id: txnId,
-      status: "pending",
-      transaction_type: bank.transactiontype.virtual2_core_conversion,
-      to_currency: bank.currencies.pzp_core,
-    },
-    include: {
-      User: { include: { Wallets: { select: { pzpEvmWallet: true } } } },
-    },
-  });
-
-  if (data == null) {
-    return res.status(500).json({ status: 0, message: "no pending transactions" });
-  }
-
-  console.log("data", data);
-
-  let amount = data.to_amount;
-  let id = data.id;
-
-  if (amount <= 0) {
-    return res.status(500).json({ status: 0, message: "amount can not be negative or zero" });
-  }
-
-  let result2 = await transferPzpReward(data.User.Wallets.pzpEvmWallet, amount, process.env.EncryptionKey);
-  console.log("result2", result2);
-  if (result2.status == 500) {
-    try {
-      await prisma.userWalletHistory.update({
-        where: {
-          id: txnId,
-        },
-        data: {
-          status: "failed",
-          transaction_hash: result2,
-        },
-      });
-    } catch (err) {
-      console.log(err);
-      return res.status(500).json(err);
-    }
-
-    return res.status(500).json(result2);
-  }
-
-  // update entry in user wallet history
   try {
-    await prisma.userWalletHistory.update({
+    // Fetch the swap transaction - can be pending or failed
+    let data = await prisma.userWalletHistory.findFirst({
       where: {
         id: txnId,
+        status: {
+          in: ["pending", "failed"] // Accept both pending and failed
+        },
+        transaction_type: bank.transactiontype.coreToBsc,
       },
-      data: {
-        status: "success",
-        transaction_hash: result2.msg.hash,
+      include: {
+        User: { 
+          include: { 
+            Wallets: { 
+              select: { 
+                pzpEvmWallet: true,
+                evmWalletPapi: true 
+              } 
+            } 
+          } 
+        },
       },
     });
-  } catch (err) {
-    console.log(err);
-    return res.status(500).json(err);
-  }
 
-  let slug = numberToSlug(id, slugType.swap);
-  return res.status(200).json({ result2, slug });
+    if (data == null) {
+      return res.status(404).json({ status: 0, message: "No pending or failed coreToBsc swap transaction found" });
+    }
+
+    const transactionStatus = data.status;
+    const actionType = transactionStatus === "failed" ? "Retrying" : "Processing";
+    console.log(`${actionType} coreToBsc swap for txnId: ${txnId}, current status: ${transactionStatus}`);
+
+    let toAmount = data.to_amount;
+    let commissionAmount = data.from_amount - data.to_amount;
+    let walletAddress = data.User.Wallets.pzpEvmWallet;
+    let userPapi = decrypt(data.User.Wallets.evmWalletPapi, process.env.EncryptionKey);
+    let recipientAddress = data.to_address;
+    let id = data.id;
+
+    if (toAmount <= 0) {
+      return res.status(400).json({ status: 0, message: "Amount cannot be negative or zero" });
+    }
+
+    // Check balance before processing
+    let cryptoBallance = await getWalletBalance(walletAddress, symbol);
+    const availableBalance = cryptoBallance?.balance || 0;
+    const nativeBalance = cryptoBallance?.nativeBalance || 0;
+
+    if (availableBalance < data.from_amount) {
+      return res.status(400).json({ status: 0, message: "Insufficient balance" });
+    }
+
+    // Import the blockchain service functions
+    const { callWithdrawalAPI, callAssignSwappedToken } = await import("../utility/blockChainServices.js");
+
+    try {
+      // Step 1: Call Withdrawal API
+      const withdrawalPayload = {
+        RecieverAddress: recipientAddress,
+        Amount: toAmount,
+        CommissionAmount: commissionAmount,
+        CommissionAddress: process.env.COMMISSION_WALLET,
+        walletAddress: walletAddress,
+        nativeBalance: nativeBalance,
+        symbol: "pzp_core",
+      };
+
+      console.log(`${actionType} - Calling Withdrawal API with payload:`, withdrawalPayload);
+
+      const withdrawalResult = await callWithdrawalAPI(userPapi, withdrawalPayload);
+
+      if (!withdrawalResult.success) {
+        await prisma.userWalletHistory.update({
+          where: { id: txnId },
+          data: {
+            status: "failed",
+            transaction_hash: JSON.stringify({ 
+              error: `Withdrawal API failed: ${withdrawalResult.error}`,
+              attemptAt: new Date().toISOString()
+            })
+          },
+        });
+        return res.status(500).json({ status: 0, message: `Withdrawal failed: ${withdrawalResult.error}` });
+      }
+
+      console.log(`${actionType} - Withdrawal API success:`, withdrawalResult);
+
+      // Step 2: Call Escrow/Assign Swapped Token API
+      const escrowPayload = {
+        FunctionName: "RewardTransfer",
+        Amount: toAmount,
+        RecieverAddress: walletAddress,
+        symbol: "pzp"
+      };
+
+      console.log(`${actionType} - Calling Escrow API with payload:`, escrowPayload);
+
+      const escrowResult = await callAssignSwappedToken(escrowPayload);
+
+      if (!escrowResult.success) {
+        await prisma.userWalletHistory.update({
+          where: { id: txnId },
+          data: {
+            status: "failed",
+            transaction_hash: JSON.stringify({ 
+              error: `Escrow API failed: ${escrowResult.error}`,
+              attemptAt: new Date().toISOString()
+            })
+          },
+        });
+        return res.status(500).json({ status: 0, message: `Escrow failed: ${escrowResult.error}` });
+      }
+
+      console.log(`${actionType} - Escrow API success:`, escrowResult);
+
+      // Step 3: Update transaction as success
+      await prisma.userWalletHistory.update({
+        where: { id: txnId },
+        data: {
+          status: "success",
+          transaction_hash: JSON.stringify({
+            withdrawalTx: withdrawalResult.txHash,
+            escrowTx: escrowResult.txHash,
+            commission: commissionAmount,
+            processedAt: new Date().toISOString()
+          }),
+        },
+      });
+
+      let slug = numberToSlug(id, slugType.swap);
+      return res.status(200).json({ 
+        status: 1, 
+        message: `Swap ${transactionStatus === "failed" ? "retry" : "approval"} processed successfully`,
+        data: {
+          transactionId: txnId,
+          slug: slug,
+          withdrawalTx: withdrawalResult.txHash,
+          escrowTx: escrowResult.txHash,
+          amount: toAmount,
+          commission: commissionAmount,
+          previousStatus: transactionStatus
+        }
+      });
+
+    } catch (apiError) {
+      console.error(`Error during swap ${actionType}:`, apiError);
+      await prisma.userWalletHistory.update({
+        where: { id: txnId },
+        data: {
+          status: "failed",
+          transaction_hash: JSON.stringify({ 
+            error: apiError.message,
+            attemptAt: new Date().toISOString()
+          })
+        },
+      });
+      return res.status(500).json({ status: 0, message: `Error processing swap: ${apiError.message}` });
+    }
+
+  } catch (error) {
+    console.error("Error in /admin/swap/approve:", error);
+    return res.status(500).json({ status: 0, message: "Internal server error", error: error.message });
+  }
 });
+
 router.get("/admin/leaderboard-rewards", AdminMiddleware, async function (req, res) {
   const page = parseInt(req.query.page) || 1;
   const limit = parseInt(req.query.limit) || 10;
