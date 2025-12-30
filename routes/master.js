@@ -36,9 +36,17 @@ router.get("/getTicketMinSwap", async function (req, res) {
 //     return res.status(200).send({data: result.data1});
 // });
 
+router.get("/weekly-prize-pool", async function (req, res) {
+      // Fetch prize pool config
+  const prizeConfig = await prisma.master.findUnique({
+    where: { key: "weeklyPrizePool" },
+  });
+
+    return res.status(200).send({data: prizeConfig.data1});
+});
 
 router.get("/migrationMaintenance", async function (req, res) {
-    const result = await prisma.Master.findUnique({
+    const result = await prisma.master.findUnique({
         where: { key: "migrationMaintenance" },
     });
 

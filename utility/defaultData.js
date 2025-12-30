@@ -117,9 +117,9 @@ export async function insertDefaults() {
   const dailyTasks = [
     {
       task_name: "Play & Win",
-      task_desc: "Play games and earn $COIN for each win. Higher stakes games offer bigger rewards!",
+      task_desc: "Play games and earn SHRD for each win. Higher stakes games offer bigger rewards!",
       reward: 0,
-      reward_range: "10-50 $COIN",
+      reward_range: "10-50 SHRD",
       currency_type: "virtual1",
       status: "Active",
       task_pfp: "https://cdn-icons-png.flaticon.com/512/919/919278.png", // Replace with actual icon if available
@@ -127,7 +127,7 @@ export async function insertDefaults() {
     },
     {
       task_name: "Invite Friends",
-      task_desc: "Earn $COIN for each friend who joins using your referral code and plays their first game.",
+      task_desc: "Earn SHRD for each friend who joins using your referral code and plays their first game.",
       reward: 100,
       reward_range: null,
       currency_type: "virtual1",
@@ -137,9 +137,9 @@ export async function insertDefaults() {
     },
     {
       task_name: "Spin the Wheel",
-      task_desc: "Spin the wheel once daily for a chance to win $COIN tokens and other rewards!",
+      task_desc: "Spin the wheel once daily for a chance to win SHRD tokens and other rewards!",
       reward: 0,
-      reward_range: "5-500 $COIN",
+      reward_range: "5-500 SHRD",
       currency_type: "virtual1",
       status: "Active",
       task_pfp: "https://cdn-icons-png.flaticon.com/512/1038/1038205.png", // Replace with actual icon
@@ -147,7 +147,7 @@ export async function insertDefaults() {
     },
     {
       task_name: "Login Bonus",
-      task_desc: "Log in daily to earn $COIN. Consecutive logins increase your rewards!",
+      task_desc: "Log in daily to earn SHRD. Consecutive logins increase your rewards!",
       reward: 0,
       reward_range: "1-7 Days Streak",
       currency_type: "virtual1",
@@ -157,7 +157,7 @@ export async function insertDefaults() {
     },
     {
       task_name: "Follow on X",
-      task_desc: "Follow our official X account to earn a one-time reward of 100 $COIN tokens.",
+      task_desc: "Follow our official X account to earn a one-time reward of 100 SHRD tokens.",
       reward: 100,
       reward_range: null,
       currency_type: "virtual1",
@@ -167,7 +167,7 @@ export async function insertDefaults() {
     },
     {
       task_name: "Join Telegram",
-      task_desc: "Join our Telegram community to earn a one-time reward of 100 $COIN tokens.",
+      task_desc: "Join our Telegram community to earn a one-time reward of 100 SHRD tokens.",
       reward: 100,
       reward_range: null,
       currency_type: "virtual1",

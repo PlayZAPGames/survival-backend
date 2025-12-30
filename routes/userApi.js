@@ -14,6 +14,18 @@ router.get("/get-balance", UserMiddleware, handleRequest(async (req, res) => {
   return makeResponse(res, statusCodes.SUCCESS, true, responseMessages.BALANCE_FETCHED, data);
 }));
 
+router.delete("/", UserMiddleware, handleRequest(async (req, res) => {
+    const user_id = req.userId;
+
+  await prisma.users.update({
+    where: { id: user_id },
+    data: {
+      status: 3, // ✅ set status to 3 meaning deleted
+      lastActive: Math.floor(Date.now() / 1000),
+    },
+  });
+  return makeResponse(res, statusCodes.SUCCESS, true, 'Account deleted sucessfully');
+}));
 
 
 
