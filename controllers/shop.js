@@ -7,105 +7,6 @@ import { getWalletBalance } from "../utility/blockChainServices.js";
 import { getUserWallet } from "../utility/walletService.js";
 import { callWithdrawalAPI, callAssignSwappedToken } from "../utility/blockChainServices.js";
 
-// async function ticketConversion(user_id) {
-//   const user = await prisma.users.findUnique({ where: { id: user_id } });
-//   if (!user) return { status: 0, msg: "user not found" };
-//   const token = user.virtual1 === null ? 0 : user.virtual1;
-
-//   // check swap limit
-//   let swapLimit = await checkSwapLimit(user_id, token);
-//     if (swapLimit.status == 0) {
-//       const error = new Error("Swap limit reached");
-//       error.statusCode = 400;
-//       throw error;
-//     }
-//   // check min swap
-//   let minSwap = await prisma.master.findFirst({ where: { key: "ticketMinSwap" } });
-//   if (token < minSwap.data2) {
-
-//   const error = new Error("swap amount should be greater than minimum swap amount");
-//       error.statusCode = 400;
-//       throw error;
-//   }
-
-
-//   // create pending transaction in history
-//   let txn = await bank.updateCurrency(
-//     user_id,
-//     token,
-//     bank.currencies.virtual1,
-//     bank.operations.debit,
-//     bank.transactiontype.virtual1_core_conversion,
-//     null,
-//     "pending"
-//   );
-
-  
-
-//   if (!txn || !txn.wallet.id) {
-//      const error = new Error("transaction failed");
-//       error.statusCode = 400;
-//       throw error;
-//   }
-
-//    const txnId = txn.wallet.id;
-
-//   // calculate fee
-//   const result = await prisma.master.findUnique({ where: { key: "ticketSwapFee" } });
-//   let fee = result.data2;
-//   let toAmount = token * (1 - fee / 100);
-
-//   // convert to PZP
-//   let toPzpAfterConversion = await convertTicketsToPZP(toAmount);
-
-//   // get wallet
-//   let wallet = await prisma.wallets.findUnique({
-//     where: { id: user_id },
-//     select: { pzpEvmWallet: true },
-//   });
-
-//   if (!wallet || !wallet.pzpEvmWallet) {
-//     const error = new Error("user wallet not found");
-//       error.statusCode = 400;
-//       throw error;
-//   }
-
-//   // 🔥 auto-approve: transfer PZP now
-//   let transferResult = await transferPzpReward(wallet.pzpEvmWallet, toPzpAfterConversion, process.env.EncryptionKey);
-
-//   console.log("transferResult", transferResult);
-  
-//   if (transferResult.status == 500) {
-
-//     // update txn failed
-//     await prisma.userWalletHistory.update({
-//       where: { id: txnId },
-//       data: {
-//         status: "failed",
-//         transaction_hash: JSON.stringify(transferResult),
-//       },
-//     });
-//     const error = new Error(`PZP transfer failed error: ${transferResult}`);
-//       error.statusCode = 400;
-//       throw error;
-//   }
-
-//   // update txn success
-//   await prisma.userWalletHistory.update({
-//     where: { id: txnId },
-//     data: {
-//       status: "success",
-//       to_amount: toPzpAfterConversion,
-//       transaction_hash: transferResult.msg.hash
-//     },
-//   });
-
-
-//   return {
-//       pzpTransferred: toPzpAfterConversion,
-//   };
-// }
-
 async function ticketConversion(user_id, amount, swapType) {
   const { walletAddress, user_papi } = await getUserWallet(user_id);
   if (!walletAddress || !user_papi) {
@@ -302,7 +203,6 @@ async function updateTransactionFailed(txnId, errorMessage) {
     console.error("Failed to update transaction status:", updateError);
   }
 }
-
 
 async function withdrawPzpRequest(user_id, amount, toAddress) {
   const user = await prisma.users.findUnique({
@@ -530,6 +430,7 @@ async function checkWithdrawLimit(user_id, amount = 0) {
 
   return { status: 1, availableLimit: withdrawLimit - totalWithdrawAmount, global: wL.data1 };
 }
+
 async function deductEvmBalance(papi, amount, key, recieverAddress = null, type = null) {
   console.log("User PAPI: ", papi);
   console.log("User PAPI afeter decrypt: ", await decrypt(papi, key));
@@ -611,7 +512,6 @@ function generateCurlCommand(url, options) {
   return curl;
 }
 
-
 async function transferPzpReward(wallet, amount, key) {
   const myHeaders = new Headers();
   myHeaders.append("key", process.env.ESCROW_KEY);
@@ -658,7 +558,6 @@ async function transferPzpReward(wallet, amount, key) {
   }
 }
 
-
 async function transferEvmNativeBalance(user, key, amount = 0.002) {
   const myHeaders = new Headers();
   myHeaders.append("key", process.env.ESCROW_KEY);
@@ -704,44 +603,6 @@ async function transferEvmNativeBalance(user, key, amount = 0.002) {
   }
 }
 
-
-// async function getEvmBalance(address, chain = "ludi_opBnb") {
-//   const myHeaders = new Headers();
-//   myHeaders.append("key", process.env.BALANCE_KEY);
-//   myHeaders.append("walletaddress", address);
-//   myHeaders.append("symbol", chain);
-//   myHeaders.append("refresh", true);
-
-//   const url = `${process.env.BLOCKCHAIN_BASE_URL}/getBalance`;
-
-//   // Convert headers to curl format
-//   const headerString = Array.from(myHeaders.entries())
-//     .map(([k, v]) => `-H "${k}: ${v}"`)
-//     .join(" ");
-
-//   // Build curl command
-//   const curlCmd = `curl -X POST ${headerString} "${url}"`;
-
-//   console.log("Generated curl command:\n", curlCmd);
-
-//   const requestOptions = {
-//     method: "POST",
-//     headers: myHeaders,
-//     redirect: "follow",
-//   };
-
-//   try {
-//     const response = await fetch(url, requestOptions);
-
-//     if (!response.ok) {
-//       throw new Error(`Error: ${response.statusText}`);
-//     }
-
-//     return response.json(); // parse JSON response
-//   } catch (error) {
-//     throw new Error(error.message);
-//   }
-// }
 
 export {
   convertTicketsToPZP,

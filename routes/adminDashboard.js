@@ -431,6 +431,25 @@ router.post("/admin/swap/approve", AdminMiddleware, async function (req, res) {
   }
 });
 
+router.post("/admin/swap/reject", AdminMiddleware, async function (req, res) {
+  const { txnId } = req.body;
+  try {
+    await prisma.userWalletHistory.update({
+      where: {
+        id: txnId,
+      },
+      data: {
+        status: "rejected",
+        transaction_hash: "rejected by admin",
+      },
+    });
+    return res.status(200).json({ status: 1, message: "swap request rejected successfully" });
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json({ status: 0, message: "Error rejecting swap request", error: err });
+  }
+});
+
 router.get("/admin/leaderboard-rewards", AdminMiddleware, async function (req, res) {
   const page = parseInt(req.query.page) || 1;
   const limit = parseInt(req.query.limit) || 10;
