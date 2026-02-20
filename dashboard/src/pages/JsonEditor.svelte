@@ -33,6 +33,37 @@
         'object.base': 'Must be an object with virtual1 and virtual2',
       }),
 
+    swap: Joi.object({
+      min_swap: Joi.number().min(0).required().messages({
+        'number.base': 'min_swap must be a number',
+      }),
+
+      swap_maintenance: Joi.boolean().required().messages({
+        'boolean.base': 'swap_maintenance must be a boolean',
+      }),
+
+      bsc_to_core_day_limit: Joi.number().min(0).required().messages({
+        'number.base': 'bsc_to_core_day_limit must be a number',
+      }),
+
+      core_to_bsc_day_limit: Joi.number().min(0).required().messages({
+        'number.base': 'core_to_bsc_day_limit must be a number',
+      }),
+
+      bsc_to_core_processing_fee: Joi.number().min(0).required().messages({
+        'number.base': 'bsc_to_core_processing_fee must be a number',
+      }),
+
+      core_to_bsc_processing_fee: Joi.number().min(0).required().messages({
+        'number.base': 'core_to_bsc_processing_fee must be a number',
+      }),
+    })
+      .strict()
+      .messages({
+        'object.unknown': 'Invalid field: {#label}',
+        'object.base': 'Must be a valid object',
+      }),
+
     leaderboardRewards: Joi.object({
       rewards: Joi.array()
         .items(
@@ -60,31 +91,31 @@
         .custom((rewards, helpers) => {
           // Validate that rank ranges don't overlap and are continuous
           const sortedRewards = [...rewards].sort((a, b) => a.from - b.from)
-          
+
           for (let i = 0; i < sortedRewards.length; i++) {
             const current = sortedRewards[i]
-            
+
             // Check for overlapping ranges
             for (let j = i + 1; j < sortedRewards.length; j++) {
               const other = sortedRewards[j]
               if (current.to >= other.from) {
                 return helpers.error('array.overlap', {
-                  message: `Rank ranges overlap: ${current.from}-${current.to} and ${other.from}-${other.to}`
+                  message: `Rank ranges overlap: ${current.from}-${current.to} and ${other.from}-${other.to}`,
                 })
               }
             }
-            
+
             // Check if ranges are continuous (except for the last one)
             if (i < sortedRewards.length - 1) {
               const next = sortedRewards[i + 1]
               if (current.to + 1 !== next.from) {
                 return helpers.error('array.gap', {
-                  message: `Gap in rank ranges: ${current.to + 1} to ${next.from - 1} is missing`
+                  message: `Gap in rank ranges: ${current.to + 1} to ${next.from - 1} is missing`,
                 })
               }
             }
           }
-          
+
           return rewards
         }, 'Rank range validation')
         .messages({
@@ -142,46 +173,73 @@
       .messages({
         'object.unknown': 'Invalid field: {#label}',
         'object.base': 'Must be an object with currencies and referrerDailyRewardLimit',
-      }) 
- }
+      }),
+
+    wallet_core_setup: Joi.object({
+      WalletStatus: Joi.boolean().required().messages({
+        'boolean.base': 'WalletStatus must be true or false',
+      }),
+
+      WalletConfig: Joi.object({
+        Status: Joi.boolean().required().messages({
+          'boolean.base': 'WalletConfig.Status must be true or false',
+        }),
+
+        Version: Joi.string().required().messages({
+          'string.base': 'WalletConfig.Version must be a string',
+        }),
+      })
+        .required()
+        .strict()
+        .messages({
+          'object.base': 'WalletConfig must be an object',
+          'object.unknown': 'Invalid field inside WalletConfig',
+        }),
+    })
+      .strict()
+      .messages({
+        'object.unknown': 'Invalid field in wallet_core_setup',
+      }),
+  }
+
+ 
 
   const validate = () => {
-  try {
-    const parsed = JSON.parse(stringValue)
-    error = null
+    try {
+      const parsed = JSON.parse(stringValue)
+      error = null
 
-    // Determine which schema to use based on the structure
-    let schemaToUse
-    if (typeof parsed.virtual1 === 'number' && typeof parsed.virtual2 === 'number') {
-      schemaToUse = schemas.joinReward
-    } else if (typeof parsed.virtual1 === 'object' || typeof parsed.virtual2 === 'object') {
-      schemaToUse = schemas.referral
-    } else if (typeof parsed.day_limit === 'number' && typeof parsed.min_withdraw === 'number') {
-      schemaToUse = schemas.walletWithdraw
-    } else if (Array.isArray(parsed.rewards)) {
-      schemaToUse = schemas.leaderboardRewards
-    } else {
-      error = 'Invalid structure - must be either joinReward, referral, walletWithdraw, or leaderboardRewards format'
+      // Schemas listed in the order to test
+      const schemaList = [
+        schemas.wallet_core_setup,
+        schemas.joinReward,
+        schemas.referral,
+        schemas.walletWithdraw,
+        schemas.leaderboardRewards,
+        schemas.swap,
+      ]
+
+      for (const schema of schemaList) {
+        const { error: validationError } = schema.validate(parsed, {
+          allowUnknown: false,
+          abortEarly: false,
+        })
+
+        // ✅ If schema passed → return success
+        if (!validationError) {
+          return { valid: true, value: parsed }
+        }
+      }
+
+      // ❌ No schema matched
+      error =
+        'Invalid structure - must match wallet_core_setup, joinReward, referral, walletWithdraw, or leaderboardRewards format'
+      return { valid: false }
+    } catch (e) {
+      error = 'Invalid JSON format'
       return { valid: false }
     }
-
-    const { error: validationError } = schemaToUse.validate(parsed, {
-      allowUnknown: false,
-      abortEarly: false,
-    })
-
-    if (validationError) {
-      error = validationError.details.map((d) => d.message).join(', ')
-      return { valid: false }
-    }
-
-    return { valid: true, value: parsed }
-  } catch (e) {
-    error = 'Invalid JSON format'
-    return { valid: false }
   }
-}
-
 
   const handleInput = () => {
     // Clear error when user starts typing

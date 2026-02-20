@@ -13,13 +13,15 @@ export const settingValidator = () => {
       'admins': 'SETTING_ADMINS',
       'maintenance': 'SETTING_MAINTENANCE',
       'walletWithdraw': 'SETTING_WALLET_WITHDRAW',
+      'swap': 'SETTING_SWAP',
       'ticketSwapLimit': 'SETTING_TICKET_SWAP_LIMIT',
       'ticketMinSwap': 'SETTING_TICKET_MIN_SWAP',
       'DailyRewardValues': 'SETTING_DAILY_REWARD_VALUES',
       'referralShareText': 'SETTING_REFERRAL_SHARE_TEXT',
       'referral': 'SETTING_REFERRAL',
       'ticketSwapFee': 'SETTING_TICKET_SWAP_FEE',
-      'weeklyPrizePool': 'WEEKLY_PRIZE_POOL'
+      'weeklyPrizePool': 'WEEKLY_PRIZE_POOL',
+      'wallet_core_setup': 'WALLET_CORE_SETUP',
     };
 
     const validationCase = validationMap[key];

@@ -81,36 +81,14 @@
     <div class="error">{errors.global}</div>
   {:else}
     <div class="settings-grid">
-      <!-- Simple Value Settings -->
-      <!-- <SettingCard title="Gem Conversion">
-        <input
-          type="number"
-          bind:value={settings.gemToPzp}
-          on:blur={() => updateSetting('gemToPzp', settings.gemToPzp)}
+            <!-- Complex JSON Settings -->
+       <SettingCard title="Swap settings">
+        <JsonEditor
+          bind:value={settings.swap}
+          onSave={(value) => updateSetting('swap', value)}
         />
-        {#if errors.gemToPzp}
-          <div class="field-error">{errors.gemToPzp}</div>
-        {/if}
-      </SettingCard>
-
-      <SettingCard title="Ticket Swap Fee">
-        <input
-          type="number"
-          bind:value={settings.ticketSwapFee}
-          on:blur={() => updateSetting('ticketSwapFee', settings.ticketSwapFee)}
-        />
-        {#if errors.ticketSwapFee}
-          <div class="field-error">{errors.ticketSwapFee}</div>
-        {/if}
-      </SettingCard> -->
-      <SettingCard title="Minimum Swap limit">
-        <input
-          type="text"
-          bind:value={settings.ticketMinSwap}
-          on:blur={() => updateSetting('ticketMinSwap', settings.ticketMinSwap)}
-        />
-        {#if errors.ticketMinSwap}
-          <div class="field-error">{errors.ticketMinSwap}</div>
+        {#if errors.swap}
+          <div class="field-error">{errors.swap}</div>
         {/if}
       </SettingCard>
 
@@ -154,6 +132,16 @@
         />
         {#if errors.referral}
           <div class="field-error">{errors.referral}</div>
+        {/if}
+      </SettingCard>
+
+      <SettingCard title="Wallet Core setup">
+        <JsonEditor
+          bind:value={settings.wallet_core_setup}
+          onSave={(value) => updateSetting('wallet_core_setup', value)}
+        />
+        {#if errors.wallet_core_setup}
+          <div class="field-error">{errors.wallet_core_setup}</div>
         {/if}
       </SettingCard>
 

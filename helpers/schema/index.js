@@ -153,6 +153,17 @@ export const validationSchema = (action) => {
       }).strict();
     }
 
+    case "SETTING_SWAP": {
+      return Joi.object({
+        min_swap: Joi.number().min(1).required(),
+        swap_maintenance: Joi.boolean().required(),
+        bsc_to_core_day_limit: Joi.number().min(1).required(),
+        core_to_bsc_day_limit: Joi.number().min(1).required(),
+        bsc_to_core_processing_fee: Joi.number().min(0).required(),
+        core_to_bsc_processing_fee: Joi.number().min(0).required(),
+      }).strict();
+    }
+
     case "SETTING_TICKET_SWAP_LIMIT": {
       return Joi.string().pattern(/^\d+$/).required();
     }
@@ -272,6 +283,20 @@ export const validationSchema = (action) => {
             referrerReward: Joi.number().min(0).required()
           }).strict()
         );
+    }
+
+        case "WALLET_CORE_SETUP": {
+      return Joi.object({
+        WalletStatus: Joi.boolean().required(),
+        WalletConfig: Joi.object({
+          Status: Joi.boolean().required(),
+          Version: Joi.string().required()
+        }).required().strict()
+      })
+        .strict()
+        .messages({
+          'object.unknown': 'Invalid field in WALLET_CORE_SETUP'
+        });
     }
 
 
