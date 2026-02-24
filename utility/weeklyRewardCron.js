@@ -197,19 +197,6 @@ export async function distributeWeeklyRewards() {
     orderBy: { _sum: { reward: "desc" } },
   });
 
-  console.log("all User rewards", allUserRewards);
-
-//   const rawRows = await prisma.userGameRewardHistory.findMany({
-//   where: {
-//     createdAt: {
-//       gte: new Date("2026-02-15T18:30:00.000Z"),
-//       lte: new Date("2026-02-22T18:29:59.999Z"),
-//     },
-//   },
-// });
-
-// console.log("RAW ROWS LENGTH:", rawRows.length);
-  
 
   // Fetch role for all users in leaderboard (1 SQL query)
   const userRoles = await prisma.users.findMany({
