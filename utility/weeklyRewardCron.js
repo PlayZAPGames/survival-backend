@@ -3,7 +3,8 @@ import axios from 'axios';
 import prisma from "../prisma/db.js";
 import * as bank from "../utility/walletService.js";
 import { transferPzpReward } from "../controllers/shop.js";
-import { startOfWeek, endOfWeek } from "date-fns";
+import { startOfWeek, endOfWeek, subWeeks } from "date-fns";
+
 
 
 // services/seedBotScores.js
@@ -158,9 +159,15 @@ async function processWeeklyPrize(userId, amount, weekStart, weekEnd, rank) {
 export async function distributeWeeklyRewards() {
 
 
+  // await sendAlert(`<@&${ROLE_ID}> ✅ distributeWeeklyRewards called midnight!`);
+
   const now = new Date();
-  const weekStart = startOfWeek(now, { weekStartsOn: 1 });
-  const weekEnd = endOfWeek(now, { weekStartsOn: 1 });
+  const lastweek = subWeeks(now, 1); //last week
+  const weekStart = startOfWeek(lastweek, { weekStartsOn: 1 });
+  const weekEnd = endOfWeek(lastweek, { weekStartsOn: 1 });
+
+  console.log(`📅 Targeting last week: ${weekStart.toISOString()} → ${weekEnd.toISOString()}`);
+
 
   // Fetch prize pool config
   const prizeConfig = await prisma.master.findUnique({
@@ -190,10 +197,34 @@ export async function distributeWeeklyRewards() {
     orderBy: { _sum: { reward: "desc" } },
   });
 
+  console.log("all User rewards", allUserRewards);
+
+//   const rawRows = await prisma.userGameRewardHistory.findMany({
+//   where: {
+//     createdAt: {
+//       gte: new Date("2026-02-15T18:30:00.000Z"),
+//       lte: new Date("2026-02-22T18:29:59.999Z"),
+//     },
+//   },
+// });
+
+// console.log("RAW ROWS LENGTH:", rawRows.length);
+  
+
+  // Fetch role for all users in leaderboard (1 SQL query)
+  const userRoles = await prisma.users.findMany({
+    where: { id: { in: allUserRewards.map(u => u.userId) } },
+    select: { id: true, role: true },
+  });
+
+  const roleMap = Object.fromEntries(userRoles.map(u => [u.id, u.role]));
+
   if (!allUserRewards.length) {
     console.log("ℹ️ No leaderboard rewards this week.");
     return;
   }
+
+  
 
   console.log("🏆 Leaderboard Results:", allUserRewards);
 
@@ -202,6 +233,11 @@ for (let i = 0; i < allUserRewards.length; i++) {
   const winner = allUserRewards[i];
   const userId = winner.userId;
   const rank = i + 1; // leaderboard rank
+
+  if (roleMap[userId] === "bot") {
+    // console.log(`⏭️ Skipping bot rank=${rank} user=${userId}`);
+    continue;
+  }
 
   // Find reward for this rank
   const prizeRange = weeklyPrizePool.find(
@@ -276,7 +312,7 @@ const ROLE_ID = '829583383310368809';
 async function sendAlert(message) {
   try {
     await axios.post(WEBHOOK_URL, {
-      username: 'Survival Weekly reward bot',
+      username: 'Weekly reward bot',
       content: message,
     });
     console.log('Alert sent successfully!');
@@ -296,13 +332,15 @@ function WeeklyRewardsCronJobs() {
   // runs every 10 seconds for testing
   // cron.schedule("*/10 * * * * *", async () => {
 
+  await sendAlert(`<@&${ROLE_ID}> ✅ Weekly reward assign completed!`);
 
-      await sendAlert(`<@&${ROLE_ID}> ✅ Survival Weekly reward assign completed!`);
-
-    console.log("🚀 Running weekly leaderboard reward job...");
+    console.log("🚀working now  Running weekly leaderboard reward job...");
     try {
+
+
       await distributeWeeklyRewards();
-       await seedBotScores();//add bots in leaderboard
+      await seedBotScores();//add bots in leaderboard
+      
     } catch (err) {
       console.error("❌ Weekly reward job failed:", err);
     }
