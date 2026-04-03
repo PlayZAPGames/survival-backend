@@ -291,6 +291,7 @@
                 <th>Rank</th>
                 <th>Slug</th>
                 <th>Username</th>
+                <th>Role</th>
                 <th>Reward won</th>
               </tr>
             </thead>
@@ -300,6 +301,7 @@
                   <td>{record.rank}</td>
                   <td>{record.slug}</td>
                   <td>{record.username ?? '-'}</td>
+                  <td>{record.role ?? '-'}</td>
                   <td>{record.totalReward}</td>
                 </tr>
               {/each}

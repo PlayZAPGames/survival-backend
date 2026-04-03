@@ -183,6 +183,7 @@ router.get("/game/leaderboard", handleRequest(async function (req, res) {
       id: true,
       username: true,
       imageUrl: true,
+      role: true,
     },
   });
 
@@ -193,6 +194,7 @@ router.get("/game/leaderboard", handleRequest(async function (req, res) {
     userId: r.userId,
     slug: numberToSlug(r.userId, slugType.user_id),
     username: userMap[r.userId]?.username || "Guest",
+    role: userMap[r.userId]?.role || null,
     imageUrl: userMap[r.userId]?.imageUrl || null,
     totalReward: r._sum.reward || 0,
   }));
