@@ -10,35 +10,44 @@ import { startOfWeek, endOfWeek, subWeeks } from "date-fns";
 // services/seedBotScores.js
 
 export async function seedBotScores() {
-  // 1️⃣ Get all users (bots only or all)
+  // 1️⃣ Get all users (bots only)
   const users = await prisma.users.findMany({
     where: { role: "bot" },
     select: { id: true },
   });
 
   if (users.length === 0) {
-    return { success: false, message: "No users found to seed.", count: 0 };
+    return { success: false, message: "No bot users found to seed.", count: 0 };
+  }
+
+  // 2️⃣ Select 5-8 bots randomly
+  const numToSelect = Math.floor(Math.random() * 4) + 5; // 5 to 8
+  const shuffled = users.sort(() => 0.5 - Math.random());
+  const selectedBots = shuffled.slice(0, Math.min(numToSelect, users.length));
+
+  if (selectedBots.length === 0) {
+    return { success: false, message: "No bots selected.", count: 0 };
   }
 
   const now = new Date();
   const gameId = 1;
 
-  // 2️⃣ Prepare random scores
-  const rewardData = users.map((u) => ({
+  // 3️⃣ Prepare random scores with higher range for rapid increase
+  const rewardData = selectedBots.map((u) => ({
     userId: u.id,
     gameId,
-    reward: Math.floor(Math.random() * 500) + 1,
+    reward: Math.floor(Math.random() * 901) + 100, // 100 to 1000 for higher scores
     currency: "virtual1",
-    reason: "bot-test",
+    reason: "bot-daily-increment",
     createdAt: now,
   }));
 
-  // 3️⃣ Insert in bulk
+  // 4️⃣ Insert in bulk
   await prisma.userGameRewardHistory.createMany({ data: rewardData });
 
   return {
     success: true,
-    message: `Inserted ${rewardData.length} random scores.`,
+    message: `Inserted ${rewardData.length} random scores for selected bots.`,
     count: rewardData.length,
   };
 }
@@ -332,6 +341,17 @@ function WeeklyRewardsCronJobs() {
       console.error("❌ Weekly reward job failed:", err);
     }
   });
+
+   // Daily bot score seeding: runs every day at 00:00:00 except Monday (to avoid overlap with weekly)
+  // cron.schedule("0 0 * * 2-7", async () => {
+  //   console.log("🤖 Running daily bot score seeding...");
+  //   try {
+  //     await seedBotScores();
+  //     console.log("✅ Daily bot scores seeded successfully.");
+  //   } catch (err) {
+  //     console.error("❌ Daily bot score seeding failed:", err);
+  //   }
+  // });
 
   // Retry job: every 10 min
   cron.schedule("*/10 * * * *", async () => {
